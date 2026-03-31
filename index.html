@@ -307,10 +307,213 @@
     .cs-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
     .cs-desc  { font-size: 13.5px; max-width: 420px; margin: 0 auto; }
 
+    /* ── Assumptions header row ──────────────────────── */
+    .assumptions-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .assumptions-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .override-btn {
+      background: none;
+      border: 1px solid var(--teal);
+      color: var(--green-light);
+      font-size: 11.5px;
+      padding: 3px 11px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .12s, color .12s;
+      white-space: nowrap;
+    }
+    .override-btn:hover  { background: var(--green-pale); }
+    .override-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .override-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      display: none;
+    }
+    .override-btn.active .override-dot { display: inline-block; }
+
+    /* ── Modal overlay ────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 660px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(0,0,0,.28);
+    }
+    .modal-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-hd h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+    .modal-hd p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 2px 7px;
+      border-radius: 5px;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+    .modal-close:hover { background: #f0f0f0; color: var(--text); }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 20px;
+      flex: 1;
+    }
+    .modal-ft {
+      padding: 13px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* equations box */
+    .modal-section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .eq-box {
+      background: #f5f7f6;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      line-height: 2;
+      color: var(--text);
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+    .eq-lhs  { color: var(--green-mid); font-weight: 700; }
+    .eq-note { color: var(--muted); font-size: 11px; }
+
+    /* variables table */
+    .var-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .var-table th {
+      background: #f0f4f2;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .var-table th:not(:first-child) { text-align: right; }
+    .var-group td {
+      background: var(--green-pale);
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--green-dark);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .var-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eef1ef;
+      vertical-align: middle;
+    }
+    .var-table td:not(:first-child) { text-align: right; }
+    .var-default { color: var(--muted); }
+    .var-unit    { font-size: 11px; color: var(--muted); padding-left: 6px !important; text-align: left !important; }
+    .var-input {
+      width: 88px;
+      padding: 5px 7px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      font-size: 12.5px;
+      text-align: right;
+      background: #fafafa;
+      transition: border-color .15s, background .15s;
+    }
+    .var-input:focus   { outline: none; border-color: var(--green-light); background: #fff; }
+    .var-input.changed { border-color: var(--teal); background: #f0faf4; }
+
+    /* modal footer buttons */
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 15px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+    }
+    .btn-ghost:hover { background: #f5f5f5; color: var(--text); }
+    .btn-primary {
+      background: var(--green-mid);
+      border: none;
+      color: #fff;
+      padding: 7px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .btn-primary:hover { background: var(--green-dark); }
+
     /* ── Responsive tweaks ────────────────────────────── */
     @media (max-width: 520px) {
       .site-header, .panel-inner { padding-left: 16px; padding-right: 16px; }
       .metric-val { font-size: 20px; }
+      .var-input  { width: 72px; }
     }
   </style>
 </head>
@@ -444,7 +647,13 @@
 
     <!-- Assumptions -->
     <div class="assumptions">
-      <strong>Assumptions &amp; Data Sources</strong>
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="override-btn" onclick="openModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
       <ul>
         <li><b>Water Bottles (PET):</b> 9.32 g/bottle (IBWA, NAPCOR) · 0.12 kg CO₂-eq/bottle (<a href="https://nems.nih.gov/Documents/PETWaterBottlesEnvironmentalImpact.pdf" target="_blank" rel="noopener">NIH lifecycle report</a>) · 1.4 gal water/bottle (IBWA) · $0.02/bottle (Science Direct). GHG does not include transportation impacts.</li>
         <li><b>Grocery Bags (HDPE):</b> 6 g/bag · 0.027 kg CO₂e/bag · 0.04 gal/bag (150 mL) · $0.006/bag (Duke 2025; Social Cost of Carbon $190/MT CO₂).</li>
@@ -497,65 +706,96 @@
   </div>
 </div>
 
+<!-- ── Override Assumptions Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay" id="override-modal"
+     onclick="handleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+
+    <div class="modal-hd">
+      <div>
+        <h2 id="modal-title">Override Assumptions</h2>
+        <p>Enter custom values to replace the defaults. Leave a field blank to use the default.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Equations -->
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box">
+        <div><span class="eq-lhs">Plastic reduced (lbs)</span>  = Qty × (Weight [g] ÷ 1,000) × 2.20462 lbs/kg</div>
+        <div><span class="eq-lhs">GHG avoided (MTCO₂e)&nbsp;</span>  = Qty × GHG Factor [kg CO₂-eq/unit] ÷ 1,000</div>
+        <div><span class="eq-lhs">Water saved (gal)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>  = Qty × Water Factor [gal/unit]</div>
+        <div><span class="eq-lhs">Cost impact ($)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>  = Qty × Cost Factor [$/unit]</div>
+        <div class="eq-note">&nbsp;&nbsp;↳ Default cost for straws &amp; cutlery: GHG Factor [kg] ÷ 1,000 × SCC ($190/MTCO₂)</div>
+      </div>
+
+      <!-- Variables -->
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Default</th>
+            <th>Your Value</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+        <tbody id="var-tbody"></tbody>
+      </table>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-ft">
+      <button class="btn-ghost" onclick="resetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="applyAndClose()">Apply &amp; Close</button>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
 <script>
-// ── Conversion factors ────────────────────────────────────────────────────────
-// Sources: Existing Calculator Summary.xlsx → "Plastics Ramblings" sheet
+// ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
-  {
-    id:       'bottles',
-    inputId:  'in-bottles',
-    label:    'Water Bottles (PET)',
-    grams:    9.32,          // g per unit  (IBWA, NAPCOR)
-    ghgKg:    0.12,          // kg CO₂-eq per unit  (NIH)
-    waterGal: 1.4,           // gal per unit  (IBWA)
-    costEa:   0.02           // $ per unit  (Science Direct)
-  },
-  {
-    id:       'bags',
-    inputId:  'in-bags',
-    label:    'Grocery Bags (HDPE)',
-    grams:    6,
-    ghgKg:    0.027,         // kg CO₂e per bag  (range 0.02–0.03; mid)
-    waterGal: 0.04,          // 150 mL per bag
-    costEa:   0.006          // Duke 2025
-  },
-  {
-    id:       'straws',
-    inputId:  'in-straws',
-    label:    'Straws (PP)',
-    grams:    0.5,
-    ghgKg:    0.00146,       // kg CO₂ per straw
-    waterGal: 0.03,
-    costEa:   null           // derived via SCC below
-  },
-  {
-    id:       'cutlery',
-    inputId:  'in-cutlery',
-    label:    'Cutlery / Utensils (PP)',
-    grams:    2.49,
-    ghgKg:    0.00252,       // kg CO₂ per piece
-    waterGal: 0.19,          // midpoint of 0.16–0.22 gal lifecycle range
-    costEa:   null           // derived via SCC below
-  }
+  { id: 'bottles', inputId: 'in-bottles', label: 'Water Bottles (PET)',      unitLabel: 'bottle',
+    grams: 9.32, ghgKg: 0.12, waterGal: 1.4, costEa: 0.02 },
+  { id: 'bags',    inputId: 'in-bags',    label: 'Grocery Bags (HDPE)',      unitLabel: 'bag',
+    grams: 6,    ghgKg: 0.027, waterGal: 0.04, costEa: 0.006 },
+  { id: 'straws',  inputId: 'in-straws',  label: 'Straws (PP)',              unitLabel: 'straw',
+    grams: 0.5,  ghgKg: 0.00146, waterGal: 0.03, costEa: null },
+  { id: 'cutlery', inputId: 'in-cutlery', label: 'Cutlery / Utensils (PP)', unitLabel: 'piece',
+    grams: 2.49, ghgKg: 0.00252, waterGal: 0.19, costEa: null }
 ];
 
-const SCC = 190;           // Social Cost of Carbon, $/MT CO₂
-const KG_PER_LB = 2.20462; // grams→lbs conversion via kg
+const SCC        = 190;      // Social Cost of Carbon, $/MTCO₂
+const KG_PER_LB  = 2.20462;
 
-// Pre-compute cost for items that use SCC
+// Pre-compute SCC-derived cost; snapshot defaults before any runtime changes
 ITEMS.forEach(item => {
-  if (item.costEa === null) {
-    // costEa = ghgKg (kg CO₂) / 1000 (→ MTCO₂) × SCC ($/MTCO₂)
-    item.costEa = (item.ghgKg / 1000) * SCC;
-  }
+  if (item.costEa === null) item.costEa = (item.ghgKg / 1000) * SCC;
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Immutable defaults keyed by item id
+const DEFAULTS = {};
+ITEMS.forEach(item => {
+  DEFAULTS[item.id] = { grams: item.grams, ghgKg: item.ghgKg, waterGal: item.waterGal, costEa: item.costEa };
+});
+
+// User overrides: { 'bottles.grams': 10, 'bags.costEa': 0.01, … }
+const USER_OV = {};
+
+function liveVal(itemId, factor) {
+  const key = `${itemId}.${factor}`;
+  return (key in USER_OV) ? USER_OV[key] : DEFAULTS[itemId][factor];
+}
+
+// ── Number formatters ─────────────────────────────────────────────────────────
 function getQty(id) {
   const v = parseFloat(document.getElementById(id).value);
   return (!isNaN(v) && v > 0) ? v : 0;
 }
-
 function fmt(n, sig = 4) {
   if (n === 0) return '0';
   if (n < 0.0001) return n.toExponential(2);
@@ -564,10 +804,9 @@ function fmt(n, sig = 4) {
   if (n < 1000)   return n.toFixed(1);
   return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
-
 function fmtCost(n) {
-  if (n === 0) return '$0';
-  if (n < 0.01) return '<$0.01';
+  if (n === 0)    return '$0';
+  if (n < 0.01)  return '<$0.01';
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
@@ -582,31 +821,29 @@ function recalc() {
     if (qty === 0) return;
     anyInput = true;
 
-    const plastic = qty * (item.grams / 1000) * KG_PER_LB; // lbs
-    const ghg     = qty * item.ghgKg / 1000;                // MTCO₂e
-    const water   = qty * item.waterGal;                    // gal
-    const cost    = qty * item.costEa;                      // $
+    const grams    = liveVal(item.id, 'grams');
+    const ghgKg    = liveVal(item.id, 'ghgKg');
+    const waterGal = liveVal(item.id, 'waterGal');
+    const costEa   = liveVal(item.id, 'costEa');
 
-    totPlastic += plastic;
-    totGHG     += ghg;
-    totWater   += water;
-    totCost    += cost;
+    const plastic = qty * (grams / 1000) * KG_PER_LB;
+    const ghg     = qty * ghgKg / 1000;
+    const water   = qty * waterGal;
+    const cost    = qty * costEa;
 
+    totPlastic += plastic; totGHG += ghg; totWater += water; totCost += cost;
     rows.push({ label: item.label, qty, plastic, ghg, water, cost });
   });
 
-  // ── Update summary metrics
   const dash = '—';
   document.getElementById('r-plastic').textContent = anyInput ? fmt(totPlastic) : dash;
   document.getElementById('r-ghg').textContent     = anyInput ? fmt(totGHG)     : dash;
   document.getElementById('r-water').textContent   = anyInput ? fmt(totWater)   : dash;
   document.getElementById('r-cost').textContent    = anyInput ? fmtCost(totCost): dash;
 
-  // ── Update breakdown table
   const tbody = document.getElementById('bk-rows');
   if (rows.length === 0) {
-    tbody.innerHTML =
-      '<tr class="empty-row"><td colspan="6">Enter quantities above to see the breakdown</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Enter quantities above to see the breakdown</td></tr>';
     return;
   }
 
@@ -618,23 +855,110 @@ function recalc() {
       <td>${fmt(r.ghg, 3)}</td>
       <td>${fmt(r.water, 3)}</td>
       <td>${fmtCost(r.cost)}</td>
-    </tr>`
-  ).join('');
-
-  // Totals row (styled via CSS last-child)
+    </tr>`).join('');
   html += `<tr>
-    <td>Total</td>
-    <td></td>
-    <td>${fmt(totPlastic, 3)}</td>
-    <td>${fmt(totGHG, 3)}</td>
-    <td>${fmt(totWater, 3)}</td>
-    <td>${fmtCost(totCost)}</td>
+    <td>Total</td><td></td>
+    <td>${fmt(totPlastic,3)}</td><td>${fmt(totGHG,3)}</td>
+    <td>${fmt(totWater,3)}</td><td>${fmtCost(totCost)}</td>
   </tr>`;
-
   tbody.innerHTML = html;
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────────────
+// ── Override modal ────────────────────────────────────────────────────────────
+// Which factors to expose in the modal, per item
+const VAR_DEFS = [
+  { factor: 'grams',    label: 'Weight per unit',  unitFn: (u) => `g/${u}`,        decimals: 4 },
+  { factor: 'ghgKg',   label: 'GHG factor',        unitFn: (u) => `kg CO₂-eq/${u}`,decimals: 6 },
+  { factor: 'waterGal',label: 'Water factor',       unitFn: (u) => `gal/${u}`,      decimals: 4 },
+  { factor: 'costEa',  label: 'Cost factor',        unitFn: (u) => `$/${u}`,        decimals: 6 },
+];
+
+function buildModalTable() {
+  let html = '';
+  ITEMS.forEach(item => {
+    html += `<tr class="var-group"><td colspan="4">${item.label}</td></tr>`;
+    VAR_DEFS.forEach(v => {
+      const defVal  = DEFAULTS[item.id][v.factor];
+      const key     = `${item.id}.${v.factor}`;
+      const curVal  = USER_OV[key] ?? '';
+      const changed = key in USER_OV ? ' changed' : '';
+      html += `<tr>
+        <td class="var-name">${v.label}</td>
+        <td class="var-default">${defVal.toPrecision(4)}</td>
+        <td><input class="var-input${changed}" id="ov-${item.id}-${v.factor}"
+              type="number" min="0" step="any"
+              placeholder="${defVal.toPrecision(4)}"
+              value="${curVal}"
+              oninput="markChanged(this,'${key}')"></td>
+        <td class="var-unit">${v.unitFn(item.unitLabel)}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('var-tbody').innerHTML = html;
+}
+
+function markChanged(input, key) {
+  input.classList.toggle('changed', input.value.trim() !== '');
+}
+
+function openModal() {
+  buildModalTable();
+  document.getElementById('override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+function applyAndClose() {
+  // Read every input; store overrides that have a valid value, remove those cleared
+  ITEMS.forEach(item => {
+    VAR_DEFS.forEach(v => {
+      const key   = `${item.id}.${v.factor}`;
+      const input = document.getElementById(`ov-${item.id}-${v.factor}`);
+      const raw   = input ? input.value.trim() : '';
+      const num   = parseFloat(raw);
+      if (raw !== '' && !isNaN(num) && num > 0) {
+        USER_OV[key] = num;
+      } else {
+        delete USER_OV[key];
+      }
+    });
+  });
+
+  // Update override button state
+  const hasOverrides = Object.keys(USER_OV).length > 0;
+  document.getElementById('override-btn').classList.toggle('active', hasOverrides);
+
+  recalc();
+  closeModal();
+}
+
+function resetOverrides() {
+  Object.keys(USER_OV).forEach(k => delete USER_OV[k]);
+  // Clear all modal inputs
+  ITEMS.forEach(item => {
+    VAR_DEFS.forEach(v => {
+      const input = document.getElementById(`ov-${item.id}-${v.factor}`);
+      if (input) { input.value = ''; input.classList.remove('changed'); }
+    });
+  });
+  document.getElementById('override-btn').classList.remove('active');
+  recalc();
+}
+
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── Tab & breakdown helpers ───────────────────────────────────────────────────
 function toggleBreakdown() {
   const body  = document.getElementById('bk-body');
   const caret = document.getElementById('bk-caret');
@@ -645,7 +969,6 @@ function toggleBreakdown() {
 }
 
 const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape' };
-
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
