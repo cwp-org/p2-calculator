@@ -294,6 +294,8 @@
       gap: 4px;
     }
     .assumptions b { color: var(--green-dark); }
+    .assumptions a { color: var(--green-light); text-decoration: underline; }
+    .assumptions a:hover { color: var(--green-dark); }
 
     /* ── Coming-soon panels ───────────────────────────── */
     .coming-soon {
@@ -444,7 +446,7 @@
     <div class="assumptions">
       <strong>Assumptions &amp; Data Sources</strong>
       <ul>
-        <li><b>Water Bottles (PET):</b> 9.32 g/bottle (IBWA, NAPCOR) · 0.12 kg CO₂-eq/bottle (NIH lifecycle) · 1.4 gal water/bottle (IBWA) · $0.02/bottle (Science Direct). GHG does not include transportation impacts.</li>
+        <li><b>Water Bottles (PET):</b> 9.32 g/bottle (IBWA, NAPCOR) · 0.12 kg CO₂-eq/bottle (<a href="https://nems.nih.gov/Documents/PETWaterBottlesEnvironmentalImpact.pdf" target="_blank" rel="noopener">NIH lifecycle report</a>) · 1.4 gal water/bottle (IBWA) · $0.02/bottle (Science Direct). GHG does not include transportation impacts.</li>
         <li><b>Grocery Bags (HDPE):</b> 6 g/bag · 0.027 kg CO₂e/bag · 0.04 gal/bag (150 mL) · $0.006/bag (Duke 2025; Social Cost of Carbon $190/MT CO₂).</li>
         <li><b>Straws (PP):</b> 0.5 g/straw · 0.00146 kg CO₂/straw · 0.03 gal/straw. Cost via SCC $190/MT CO₂.</li>
         <li><b>Cutlery (PP):</b> 2.49 g/piece · 0.00252 kg CO₂/piece · 0.19 gal/piece (lifecycle range 0.16–0.22 gal). Cost via SCC $190/MT CO₂.</li>
