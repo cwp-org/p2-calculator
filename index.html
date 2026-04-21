@@ -530,7 +530,7 @@
   <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single-Use Plastics</button>
   <button class="tab-btn soon"   role="tab" onclick="return false">Fleet Vehicles <span class="soon-badge">Coming Soon</span></button>
   <button class="tab-btn soon"   role="tab" onclick="return false">Water Use <span class="soon-badge">Coming Soon</span></button>
-  <button class="tab-btn soon"   role="tab" onclick="return false">Landscaping Equipment <span class="soon-badge">Coming Soon</span></button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -694,17 +694,90 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════
-     TAB 4 · LANDSCAPING EQUIPMENT
+     TAB 4 · LANDSCAPING PRACTICES
      ════════════════════════════════════════════════════════ -->
 <div class="tab-panel" id="tab-landscape" role="tabpanel">
   <div class="panel-inner">
-    <div class="coming-soon">
-      <div class="cs-icon">🌿</div>
-      <div class="cs-title">Electric Landscaping Equipment Calculator</div>
-      <p class="cs-desc">Estimate GHG reductions and cost savings from converting gas-powered to battery-powered landscaping equipment.</p>
+
+    <p class="panel-title">Landscaping GHG Reductions — Bare Root vs. Container Growing</p>
+    <p class="panel-desc">
+      Enter the number of plants typically grown in 1-gallon plastic containers to estimate the
+      greenhouse gas emissions avoided by switching to a bare root system.
+    </p>
+
+    <!-- Input -->
+    <div class="input-grid" style="grid-template-columns: minmax(200px, 300px);">
+      <div class="input-card">
+        <span class="ic-icon">🌱</span>
+        <div class="ic-label">Plants grown in containers (1-gal)</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="lsc-in-plants" type="number" min="0" step="1"
+                 placeholder="0" inputmode="numeric" aria-label="Number of plants"
+                 oninput="lscRecalc()">
+          <span class="ic-unit">plants</span>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+    <!-- Results -->
+    <div class="results-card">
+      <div class="results-head">Estimated GHG Emissions Avoided by Switching to Bare Root</div>
+
+      <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric">
+          <div class="metric-val" id="lsc-r-plastic">—</div>
+          <div class="metric-label">Plastic Avoided</div>
+          <div class="metric-unit">pounds</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="lsc-r-ghg-hdpe">—</div>
+          <div class="metric-label">GHG Avoided — Standard HDPE</div>
+          <div class="metric-unit">MTCO₂e</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="lsc-r-ghg-rhdpe">—</div>
+          <div class="metric-label">GHG Avoided — Recycled HDPE</div>
+          <div class="metric-unit">MTCO₂e</div>
+        </div>
+      </div>
+
+      <button class="breakdown-toggle" onclick="lscToggleBreakdown()"
+              aria-expanded="false" id="lsc-bk-toggle">
+        <i class="breakdown-caret" id="lsc-bk-caret">▶</i>
+        View calculation breakdown
+      </button>
+      <div class="breakdown-body" id="lsc-bk-body">
+        <table class="bk-table" aria-label="Landscaping calculation breakdown">
+          <thead>
+            <tr><th style="text-align:left">Step</th><th>Value</th><th style="text-align:left;padding-left:14px">Unit</th></tr>
+          </thead>
+          <tbody id="lsc-bk-rows">
+            <tr class="empty-row"><td colspan="3">Enter number of plants above to see the breakdown</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /results-card -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="lsc-override-btn" onclick="lscOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <ul>
+        <li><b>Plastic per 1-gal container:</b> 2.67 oz — average of a variety of typical plant container weights at the 1-gallon pot size.</li>
+        <li><b>HDPE emission factor:</b> 1.92 kg CO₂/kg — lifecycle GHG for virgin high-density polyethylene. (<a href="https://www.petnology.com/magazine/article/wanted-solutions-on-a-silver-platter" target="_blank" rel="noopener">Source</a>)</li>
+        <li><b>Recycled HDPE emission factor:</b> 0.24 kg CO₂/kg — lifecycle GHG for recycled HDPE, significantly lower than virgin material. (<a href="https://www.petnology.com/magazine/article/wanted-solutions-on-a-silver-platter" target="_blank" rel="noopener">Source</a>)</li>
+        <li>Unit conversions: 35.274 oz = 1 kg; 1 kg = 2.20462 lbs.</li>
+        <li>Results reflect emissions avoided by eliminating plastic container production. Transportation emissions are not included.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-landscape -->
 
 <!-- ── Override Assumptions Modal ───────────────────────────────────────────── -->
 <div class="modal-overlay" id="override-modal"
@@ -755,6 +828,55 @@
 
   </div><!-- /modal -->
 </div><!-- /modal-overlay -->
+
+<!-- ── Landscaping Override Modal ────────────────────────────────────────────── -->
+<div class="modal-overlay" id="lsc-override-modal"
+     onclick="lscHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="lsc-modal-title">
+  <div class="modal">
+
+    <div class="modal-hd">
+      <div>
+        <h2 id="lsc-modal-title">Override Assumptions</h2>
+        <p>Enter custom values to replace the defaults. Leave a field blank to use the default.</p>
+      </div>
+      <button class="modal-close" onclick="lscCloseModal()" aria-label="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box">
+        <div><span class="eq-lhs">Plastic avoided (oz)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Plants × Plastic per Container [oz]</div>
+        <div><span class="eq-lhs">Plastic avoided (kg)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Plastic (oz) ÷ 35.274</div>
+        <div><span class="eq-lhs">Plastic avoided (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Plastic (kg) × 2.20462</div>
+        <div><span class="eq-lhs">GHG avoided — HDPE (kg CO₂)&nbsp;</span> = Plastic (kg) × HDPE Emission Factor</div>
+        <div><span class="eq-lhs">GHG avoided — rHDPE (kg CO₂)</span> = Plastic (kg) × rHDPE Emission Factor</div>
+        <div><span class="eq-lhs">GHG (MTCO₂e)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = GHG (kg CO₂) ÷ 1,000</div>
+      </div>
+
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Default</th>
+            <th>Your Value</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+        <tbody id="lsc-var-tbody"></tbody>
+      </table>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-ft">
+      <button class="btn-ghost" onclick="lscResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="lscApplyAndClose()">Apply &amp; Close</button>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /lsc-override-modal -->
 
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
@@ -953,9 +1075,9 @@ function resetOverrides() {
   recalc();
 }
 
-// Close on Escape key
+// Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -974,6 +1096,146 @@ function switchTab(key, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(TAB_IDS[key]).classList.add('active');
   btn.classList.add('active');
+}
+
+// ── Landscaping Calculator ────────────────────────────────────────────────────
+// Source: "Landscaping GHG Reduct. Calcs." sheet, Existing Calculator Summary_042026.xlsx
+const LSC_DEFAULTS = {
+  plasticOzPerContainer: 2.67,  // oz; avg weight of 1-gal plant container
+  hdpeEmFactor:          1.92,  // kg CO₂ per kg HDPE  (petnology.com)
+  rhdpeEmFactor:         0.24,  // kg CO₂ per kg recycled HDPE
+};
+const OZ_PER_KG = 35.274;
+
+const LSC_OV = {};  // user overrides
+
+function lscVal(key) {
+  return (key in LSC_OV) ? LSC_OV[key] : LSC_DEFAULTS[key];
+}
+
+function lscRecalc() {
+  const plants = Math.max(0, parseFloat(document.getElementById('lsc-in-plants').value) || 0);
+
+  if (plants === 0) {
+    ['lsc-r-plastic','lsc-r-ghg-hdpe','lsc-r-ghg-rhdpe'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+    document.getElementById('lsc-bk-rows').innerHTML =
+      '<tr class="empty-row"><td colspan="3">Enter number of plants above to see the breakdown</td></tr>';
+    return;
+  }
+
+  const ozPerCont  = lscVal('plasticOzPerContainer');
+  const hdpeEm     = lscVal('hdpeEmFactor');
+  const rhdpeEm    = lscVal('rhdpeEmFactor');
+
+  const plasticOz   = plants * ozPerCont;
+  const plasticKg   = plasticOz / OZ_PER_KG;
+  const plasticLbs  = plasticKg * KG_PER_LB;
+  const ghgHdpeKg   = plasticKg * hdpeEm;
+  const ghgHdpeMt   = ghgHdpeKg / 1000;
+  const ghgRhdpeKg  = plasticKg * rhdpeEm;
+  const ghgRhdpeMt  = ghgRhdpeKg / 1000;
+
+  document.getElementById('lsc-r-plastic').textContent    = fmt(plasticLbs);
+  document.getElementById('lsc-r-ghg-hdpe').textContent  = fmt(ghgHdpeMt);
+  document.getElementById('lsc-r-ghg-rhdpe').textContent = fmt(ghgRhdpeMt);
+
+  const steps = [
+    ['Plants (input)',                          plants.toLocaleString('en-US'), 'plants'],
+    ['Plastic per container',                   ozPerCont,                      'oz/container'],
+    ['Plastic avoided',                         fmt(plasticOz),                 'oz'],
+    ['Plastic avoided',                         fmt(plasticKg),                 'kg'],
+    ['Plastic avoided',                         fmt(plasticLbs),                'lbs'],
+    ['HDPE emission factor',                    hdpeEm,                         'kg CO₂/kg'],
+    ['GHG avoided — Standard HDPE',             fmt(ghgHdpeKg),                 'kg CO₂'],
+    ['GHG avoided — Standard HDPE',             fmt(ghgHdpeMt),                 'MTCO₂e'],
+    ['Recycled HDPE emission factor',           rhdpeEm,                        'kg CO₂/kg'],
+    ['GHG avoided — Recycled HDPE',             fmt(ghgRhdpeKg),                'kg CO₂'],
+    ['GHG avoided — Recycled HDPE',             fmt(ghgRhdpeMt),                'MTCO₂e'],
+  ];
+
+  document.getElementById('lsc-bk-rows').innerHTML = steps.map(([step, val, unit]) =>
+    `<tr>
+      <td>${step}</td>
+      <td style="text-align:right">${val}</td>
+      <td style="padding-left:14px">${unit}</td>
+    </tr>`
+  ).join('');
+}
+
+function lscToggleBreakdown() {
+  const body  = document.getElementById('lsc-bk-body');
+  const caret = document.getElementById('lsc-bk-caret');
+  const btn   = document.getElementById('lsc-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// ── Landscaping override modal ────────────────────────────────────────────────
+const LSC_VAR_DEFS = [
+  { key: 'plasticOzPerContainer', label: 'Plastic per 1-gal container',   unit: 'oz/container' },
+  { key: 'hdpeEmFactor',          label: 'HDPE emission factor',           unit: 'kg CO₂/kg HDPE' },
+  { key: 'rhdpeEmFactor',         label: 'Recycled HDPE emission factor',  unit: 'kg CO₂/kg rHDPE' },
+];
+
+function lscBuildModalTable() {
+  document.getElementById('lsc-var-tbody').innerHTML = LSC_VAR_DEFS.map(v => {
+    const defVal  = LSC_DEFAULTS[v.key];
+    const curVal  = LSC_OV[v.key] ?? '';
+    const changed = v.key in LSC_OV ? ' changed' : '';
+    return `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${defVal}</td>
+      <td><input class="var-input${changed}" id="lsc-ov-${v.key}"
+            type="number" min="0" step="any"
+            placeholder="${defVal}" value="${curVal}"
+            oninput="this.classList.toggle('changed', this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  }).join('');
+}
+
+function lscOpenModal() {
+  lscBuildModalTable();
+  document.getElementById('lsc-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function lscCloseModal() {
+  document.getElementById('lsc-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lscHandleOverlayClick(e) {
+  if (e.target === e.currentTarget) lscCloseModal();
+}
+
+function lscApplyAndClose() {
+  LSC_VAR_DEFS.forEach(v => {
+    const input = document.getElementById(`lsc-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num > 0) {
+      LSC_OV[v.key] = num;
+    } else {
+      delete LSC_OV[v.key];
+    }
+  });
+  document.getElementById('lsc-override-btn').classList.toggle('active', Object.keys(LSC_OV).length > 0);
+  lscRecalc();
+  lscCloseModal();
+}
+
+function lscResetOverrides() {
+  Object.keys(LSC_OV).forEach(k => delete LSC_OV[k]);
+  LSC_VAR_DEFS.forEach(v => {
+    const input = document.getElementById(`lsc-ov-${v.key}`);
+    if (input) { input.value = ''; input.classList.remove('changed'); }
+  });
+  document.getElementById('lsc-override-btn').classList.remove('active');
+  lscRecalc();
 }
 </script>
 </body>
