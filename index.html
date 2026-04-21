@@ -509,6 +509,107 @@
     }
     .btn-primary:hover { background: var(--green-dark); }
 
+    /* ── Nutrient calculator ──────────────────────────── */
+    .nut-section {
+      margin-bottom: 30px;
+    }
+    .nut-section-hd {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--green-pale);
+    }
+    .nut-num {
+      width: 22px; height: 22px;
+      background: var(--green-mid);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+    }
+    .pp-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 560px) { .pp-inputs { grid-template-columns: 1fr; } }
+    .soil-toggle { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .soil-opt {
+      display: flex; align-items: center; gap: 7px;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      font-size: 13px;
+      background: #fafafa;
+      transition: border-color .15s, background .15s, color .15s;
+      user-select: none;
+    }
+    .soil-opt input[type="radio"] { display: none; }
+    .soil-opt.active {
+      border-color: var(--green-light);
+      background: var(--green-pale);
+      color: var(--green-dark);
+      font-weight: 600;
+    }
+    .soil-pct { font-size: 11px; color: var(--muted); margin-left: 2px; }
+    .soil-opt.active .soil-pct { color: var(--green-mid); }
+    .nut-note {
+      font-size: 12.5px;
+      color: var(--muted);
+      background: #fffdf0;
+      border: 1px solid #e8d96a;
+      border-radius: 7px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .nut-note a { color: var(--green-light); }
+    .npk-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .npk-table th {
+      background: #f0f4f2;
+      padding: 8px 14px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .npk-table th:first-child { text-align: left; }
+    .npk-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eef1ef;
+      text-align: right;
+      color: var(--text);
+    }
+    .npk-table td:first-child { text-align: left; }
+    .npk-table .total-row td { background: #f7faf8; font-weight: 700; border-bottom: none; }
+    .npk-table .highlight-row td { background: #e8f5ee; font-weight: 700; color: var(--green-dark); }
+    .no-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .ic-sublabel {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--muted);
+      width: 42px;
+      flex-shrink: 0;
+    }
+
     /* ── Responsive tweaks ────────────────────────────── */
     @media (max-width: 520px) {
       .site-header, .panel-inner { padding-left: 16px; padding-right: 16px; }
@@ -531,6 +632,7 @@
   <button class="tab-btn soon"   role="tab" onclick="return false">Fleet Vehicles <span class="soon-badge">Coming Soon</span></button>
   <button class="tab-btn soon"   role="tab" onclick="return false">Water Use <span class="soon-badge">Coming Soon</span></button>
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('nutrients',this)">Landscaping Nutrients</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -779,6 +881,246 @@
   </div><!-- /panel-inner -->
 </div><!-- /tab-landscape -->
 
+<!-- ════════════════════════════════════════════════════════
+     TAB 5 · LANDSCAPING NUTRIENT REDUCTIONS
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-nutrients" role="tabpanel">
+  <div class="panel-inner">
+
+    <p class="panel-title">Landscaping Nutrient / Fertilizer Reductions</p>
+    <p class="panel-desc">
+      Estimate reductions in N-P-K fertilizer application and nutrient runoff from native landscaping
+      projects and nursery operations using a 10-6-4 fertilizer at standard application rates.
+    </p>
+
+    <!-- ── SECTION 1: PLANTED PROJECT ─────────────────── -->
+    <div class="nut-section">
+      <div class="nut-section-hd"><span class="nut-num">1</span>Planted Project — NPK Fertilizer Reduction</div>
+
+      <div class="pp-inputs">
+        <div class="input-card">
+          <span class="ic-icon">📐</span>
+          <div class="ic-label">Project Planting Area</div>
+          <div class="ic-input-row">
+            <input class="ic-input" id="pp-area" type="number" min="0" step="1"
+                   placeholder="0" inputmode="numeric" aria-label="Planting area in square feet"
+                   oninput="nutRecalcPP()">
+            <span class="ic-unit">sq ft</span>
+          </div>
+        </div>
+
+        <div class="input-card">
+          <span class="ic-icon">🏔️</span>
+          <div class="ic-label">Soil Type</div>
+          <div class="soil-toggle" role="group" aria-label="Soil type">
+            <label class="soil-opt active" id="soil-ab-lbl">
+              <input type="radio" name="pp-soil" value="ab" checked onchange="nutSoilChange(this)">
+              Soil A / B <span class="soil-pct">40% runoff</span>
+            </label>
+            <label class="soil-opt" id="soil-cd-lbl">
+              <input type="radio" name="pp-soil" value="cd" onchange="nutSoilChange(this)">
+              Soil C / D <span class="soil-pct">70% runoff</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="nut-note">
+        💡 <span>If you don't know the planting area, use the
+        <a href="https://classygroundcovers.com/site/page?view=plantCalculator" target="_blank" rel="noopener">
+        Classy Groundcovers Plant Count Calculator</a>
+        to estimate area from plant quantity and spacing, then enter the result above.</span>
+      </div>
+
+      <div class="results-card">
+        <div class="results-head">Fertilizer Applied &amp; Nutrient Runoff Avoided</div>
+        <div style="overflow-x:auto">
+          <table class="npk-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>N — Nitrogen (lbs)</th>
+                <th>P — Phosphorus (lbs)</th>
+                <th>K — Potassium (lbs)</th>
+                <th>Total (lbs)</th>
+              </tr>
+            </thead>
+            <tbody id="pp-table-body">
+              <tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--muted);font-style:italic;padding:20px">Enter planting area above to see results</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /nut-section 1 -->
+
+    <!-- ── SECTION 2: NURSERY OPERATION ───────────────── -->
+    <div class="nut-section">
+      <div class="nut-section-hd"><span class="nut-num">2</span>Nursery Operation — NPK Fertilizer Reduction</div>
+
+      <div class="no-inputs-grid">
+
+        <div class="input-card">
+          <span class="ic-icon">🌳</span>
+          <div class="ic-label">Trees (12–36″ height)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Qty</span>
+              <input class="ic-input" id="no-qty-trees" type="number" min="0" step="1"
+                     placeholder="0" oninput="nutRecalcNO()">
+              <span class="ic-unit">plants</span>
+            </div>
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Spacing</span>
+              <input class="ic-input" id="no-spc-trees" type="number" min="0" step="any"
+                     placeholder="24" oninput="nutRecalcNO()">
+              <span class="ic-unit">in</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-card">
+          <span class="ic-icon">🌿</span>
+          <div class="ic-label">Shrubs (3-gal pot)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Qty</span>
+              <input class="ic-input" id="no-qty-shrubs" type="number" min="0" step="1"
+                     placeholder="0" oninput="nutRecalcNO()">
+              <span class="ic-unit">plants</span>
+            </div>
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Spacing</span>
+              <input class="ic-input" id="no-spc-shrubs" type="number" min="0" step="any"
+                     placeholder="12" oninput="nutRecalcNO()">
+              <span class="ic-unit">in</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-card">
+          <span class="ic-icon">🌱</span>
+          <div class="ic-label">Herbaceous (1-gal pot)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Qty</span>
+              <input class="ic-input" id="no-qty-herb" type="number" min="0" step="1"
+                     placeholder="0" oninput="nutRecalcNO()">
+              <span class="ic-unit">plants</span>
+            </div>
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Spacing</span>
+              <input class="ic-input" id="no-spc-herb" type="number" min="0" step="any"
+                     placeholder="6" oninput="nutRecalcNO()">
+              <span class="ic-unit">in</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-card">
+          <span class="ic-icon">🫘</span>
+          <div class="ic-label">Plugs (72-cell tray)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Qty</span>
+              <input class="ic-input" id="no-qty-plugs" type="number" min="0" step="1"
+                     placeholder="0" oninput="nutRecalcNO()">
+              <span class="ic-unit">plants</span>
+            </div>
+            <div class="ic-input-row">
+              <span class="ic-sublabel">Spacing</span>
+              <input class="ic-input" id="no-spc-plugs" type="number" min="0" step="any"
+                     placeholder="2" oninput="nutRecalcNO()">
+              <span class="ic-unit">in</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /no-inputs-grid -->
+
+      <div class="results-card">
+        <div class="results-head">Nursery Fertilizer &amp; Nutrient Runoff</div>
+
+        <!-- Per-type breakdown (collapsible) -->
+        <button class="breakdown-toggle" onclick="noToggleBreakdown()"
+                aria-expanded="false" id="no-bk-toggle">
+          <i class="breakdown-caret" id="no-bk-caret">▶</i>
+          View per-plant-type breakdown
+        </button>
+        <div class="breakdown-body" id="no-bk-body">
+          <div style="overflow-x:auto">
+            <table class="bk-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Plant Type</th>
+                  <th>Qty</th>
+                  <th>Spacing (in)</th>
+                  <th>Area (sf)</th>
+                  <th>N Applied (lbs)</th>
+                  <th>P Applied (lbs)</th>
+                  <th>K Applied (lbs)</th>
+                </tr>
+              </thead>
+              <tbody id="no-breakdown-body">
+                <tr class="empty-row"><td colspan="7">Enter plant quantities above to see breakdown</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="overflow-x:auto;border-top:1px solid var(--border)">
+          <table class="npk-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>N — Nitrogen (lbs)</th>
+                <th>P — Phosphorus (lbs)</th>
+                <th>K — Potassium (lbs)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Annual Runoff Total <span style="font-size:11px;color:var(--muted)">(× 2 applications)</span></td>
+                <td id="no-ann-n">—</td><td id="no-ann-p">—</td><td id="no-ann-k">—</td>
+              </tr>
+              <tr>
+                <td>Fertilizer Loss <span style="font-size:11px;color:var(--muted)">(30% of annual)</span></td>
+                <td id="no-loss-n">—</td><td id="no-loss-p">—</td><td id="no-loss-k">—</td>
+              </tr>
+              <tr class="highlight-row">
+                <td>Nutrient Pollutant Runoff <span style="font-size:11px">(50% of loss reaches waterways)</span></td>
+                <td id="no-run-n">—</td><td id="no-run-p">—</td><td id="no-run-k">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div><!-- /results-card -->
+    </div><!-- /nut-section 2 -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="nut-override-btn" onclick="nutOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <ul>
+        <li><b>Fertilizer type:</b> 10-6-4 (N-P-K by weight) applied for perennial plantings. One application per year in spring.</li>
+        <li><b>Application rate:</b> 1 lb of fertilizer per 100 sq ft of planting area (equivalent to 0.1 lbs N per 100 sf). Source: <a href="https://extension.umd.edu/resource/care-annuals-and-perennials/" target="_blank" rel="noopener">UMD Extension</a>.</li>
+        <li><b>Soil Type A/B:</b> 40% of nutrients applied become runoff. <b>Soil Type C/D:</b> 70% become runoff.</li>
+        <li><b>Establishment period:</b> Fertilizer assumed to be applied only during the first 3 years of plant establishment.</li>
+        <li><b>Nursery — applications:</b> 2 per year for native plants (during active growth stages).</li>
+        <li><b>Nursery — fertilizer loss:</b> 15–30% typical loss; default 30%. Varies by irrigation method and fertilizer type.</li>
+        <li><b>Nursery — runoff reach:</b> 50–90% of leached nutrients reach waterways; default 50%. Varies by drainage system and surface permeability.</li>
+        <li><b>Surface area per plant</b> is calculated as a circle: π × (spacing ÷ 2)². Spacing represents root zone or typical container size.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-nutrients -->
+
 <!-- ── Override Assumptions Modal ───────────────────────────────────────────── -->
 <div class="modal-overlay" id="override-modal"
      onclick="handleOverlayClick(event)" role="dialog"
@@ -877,6 +1219,60 @@
 
   </div><!-- /modal -->
 </div><!-- /lsc-override-modal -->
+
+<!-- ── Nutrient Reduction Override Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" id="nut-override-modal"
+     onclick="nutHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="nut-modal-title">
+  <div class="modal">
+
+    <div class="modal-hd">
+      <div>
+        <h2 id="nut-modal-title">Override Fertilizer Assumptions</h2>
+        <p>Customize any value below. Leave blank to use the default.</p>
+      </div>
+      <button class="modal-close" onclick="nutCloseModal()" aria-label="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="modal-section-label">Equations — Planted Project</div>
+      <div class="eq-box" style="margin-bottom:16px">
+        <div><span class="eq-lhs">Total Fertilizer (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Area (sf) × App Rate [1 lb/100sf]</div>
+        <div><span class="eq-lhs">N Applied (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Total Fertilizer × N% [10%]</div>
+        <div><span class="eq-lhs">P / K Applied (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Total Fertilizer × P% [6%] or K% [4%]</div>
+        <div><span class="eq-lhs">Annual Runoff (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Applied × Soil Runoff Factor [40% A/B · 70% C/D]</div>
+        <div><span class="eq-lhs">3-Year Total (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Annual Runoff × Establishment Years [3]</div>
+      </div>
+
+      <div class="modal-section-label">Equations — Nursery Operation</div>
+      <div class="eq-box" style="margin-bottom:20px">
+        <div><span class="eq-lhs">Area per Plant (in²)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = π × (Spacing ÷ 2)²</div>
+        <div><span class="eq-lhs">Total Area (sf)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Area per Plant × Quantity ÷ 144</div>
+        <div><span class="eq-lhs">N / P / K Applied (lbs)&nbsp;&nbsp;</span> = Total Area × App Rate × N% (or P%, K%)</div>
+        <div><span class="eq-lhs">Runoff per type (lbs)&nbsp;&nbsp;&nbsp;&nbsp;</span> = Applied × Nursery Runoff Factor [40%]</div>
+        <div><span class="eq-lhs">Annual Total (lbs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = SUM(all types) × Applications/Year [2]</div>
+        <div><span class="eq-lhs">Fertilizer Loss (lbs)&nbsp;&nbsp;&nbsp;&nbsp;</span> = Annual Total × Fertilizer Loss Rate [30%]</div>
+        <div><span class="eq-lhs">Nutrient Runoff (lbs)&nbsp;&nbsp;&nbsp;&nbsp;</span> = Fertilizer Loss × Runoff Reach Rate [50%]</div>
+      </div>
+
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="nut-var-tbody"></tbody>
+      </table>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="nutResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="nutApplyAndClose()">Apply &amp; Close</button>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /nut-override-modal -->
 
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
@@ -1077,7 +1473,7 @@ function resetOverrides() {
 
 // Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); lscCloseModal(); }
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -1090,7 +1486,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape', nutrients: 'tab-nutrients' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1236,6 +1632,241 @@ function lscResetOverrides() {
   });
   document.getElementById('lsc-override-btn').classList.remove('active');
   lscRecalc();
+}
+
+// ── Nutrient Calculator ───────────────────────────────────────────────────────
+// Source: "Landscaping Nutrient Reductions" sheet, Existing Calculator Summary_042126.xlsx
+const NUT_DEFAULTS = {
+  nPct:        0.10,   // N in 10-6-4 fertilizer
+  pPct:        0.06,   // P
+  kPct:        0.04,   // K
+  appRate:     1,      // lbs fertilizer per 100 sf
+  abRunoff:    0.40,   // soil A/B runoff fraction
+  cdRunoff:    0.70,   // soil C/D runoff fraction
+  estYears:    3,      // establishment years (planted project)
+  nursRunoff:  0.40,   // nursery runoff factor (applied to N/P/K)
+  appsPerYr:   2,      // nursery applications per year
+  fertLoss:    0.30,   // nursery fertilizer loss rate
+  runoffReach: 0.50,   // fraction of leached nutrients reaching waterways
+};
+const NUT_OV = {};
+function nutVal(k) { return (k in NUT_OV) ? NUT_OV[k] : NUT_DEFAULTS[k]; }
+
+// ── Planted Project ───────────────────────────────────────────────────────────
+function nutSoilChange(radio) {
+  document.querySelectorAll('.soil-opt').forEach(el => el.classList.remove('active'));
+  radio.closest('.soil-opt').classList.add('active');
+  nutRecalcPP();
+}
+
+function nutRecalcPP() {
+  const area    = Math.max(0, parseFloat(document.getElementById('pp-area').value) || 0);
+  const soilEl  = document.querySelector('input[name="pp-soil"]:checked');
+  const soil    = soilEl ? soilEl.value : 'ab';
+
+  const nPct    = nutVal('nPct');
+  const pPct    = nutVal('pPct');
+  const kPct    = nutVal('kPct');
+  const appRate = nutVal('appRate');
+  const runoffF = soil === 'ab' ? nutVal('abRunoff') : nutVal('cdRunoff');
+  const estYrs  = nutVal('estYears');
+
+  const tbody = document.getElementById('pp-table-body');
+  if (area === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--muted);font-style:italic;padding:20px">Enter planting area above to see results</td></tr>';
+    return;
+  }
+
+  const totalFert = area * appRate / 100;
+  const nApp = totalFert * nPct;
+  const pApp = totalFert * pPct;
+  const kApp = totalFert * kPct;
+
+  const nRun = nApp * runoffF;
+  const pRun = pApp * runoffF;
+  const kRun = kApp * runoffF;
+
+  const nTot = nRun * estYrs;
+  const pTot = pRun * estYrs;
+  const kTot = kRun * estYrs;
+
+  const rows = [
+    ['Fertilizer Applied (annual)',                nApp, pApp, kApp, 'applied'],
+    ['Annual Runoff Avoided',                      nRun, pRun, kRun, 'runoff'],
+    [`${Math.round(estYrs)}-Year Establishment Total`, nTot, pTot, kTot, 'total'],
+  ];
+
+  tbody.innerHTML = rows.map(([label, n, p, k, cls]) =>
+    `<tr class="${cls === 'total' ? 'total-row' : ''}">
+      <td>${label}</td>
+      <td>${fmt(n)}</td><td>${fmt(p)}</td><td>${fmt(k)}</td>
+      <td>${fmt(n + p + k)}</td>
+    </tr>`
+  ).join('');
+}
+
+// ── Nursery Operation ─────────────────────────────────────────────────────────
+const NUT_PLANT_TYPES = [
+  { id: 'trees',  label: 'Trees (12–36″)' },
+  { id: 'shrubs', label: 'Shrubs (3-gal)' },
+  { id: 'herb',   label: 'Herbaceous (1-gal)' },
+  { id: 'plugs',  label: 'Plugs (72-cell)' },
+];
+
+function nutRecalcNO() {
+  const nPct       = nutVal('nPct');
+  const pPct       = nutVal('pPct');
+  const kPct       = nutVal('kPct');
+  const appRate    = nutVal('appRate');
+  const nursRunoff = nutVal('nursRunoff');
+  const appsPerYr  = nutVal('appsPerYr');
+  const fertLoss   = nutVal('fertLoss');
+  const rrReach    = nutVal('runoffReach');
+
+  let sumNrun = 0, sumPrun = 0, sumKrun = 0;
+  let hasAny  = false;
+  const bkRows = [];
+
+  NUT_PLANT_TYPES.forEach(pt => {
+    const qty = Math.max(0, parseFloat(document.getElementById(`no-qty-${pt.id}`).value) || 0);
+    const spc = Math.max(0, parseFloat(document.getElementById(`no-spc-${pt.id}`).value) || 0);
+
+    if (qty === 0 || spc === 0) {
+      bkRows.push(`<tr><td>${pt.label}</td><td colspan="6" style="text-align:center;color:var(--muted)">—</td></tr>`);
+      return;
+    }
+    hasAny = true;
+
+    const areaPerPlantIn2 = 3.14 * Math.pow(spc / 2, 2);
+    const totalIn2        = areaPerPlantIn2 * qty;
+    const sf              = totalIn2 / 144;
+    const totalFert       = sf * appRate / 100;
+    const nApp = totalFert * nPct;
+    const pApp = totalFert * pPct;
+    const kApp = totalFert * kPct;
+    const nRun = nApp * nursRunoff;
+    const pRun = pApp * nursRunoff;
+    const kRun = kApp * nursRunoff;
+
+    sumNrun += nRun; sumPrun += pRun; sumKrun += kRun;
+
+    bkRows.push(`<tr>
+      <td>${pt.label}</td>
+      <td style="text-align:right">${qty.toLocaleString()}</td>
+      <td style="text-align:right">${spc}"</td>
+      <td style="text-align:right">${fmt(sf)}</td>
+      <td style="text-align:right">${fmt(nApp)}</td>
+      <td style="text-align:right">${fmt(pApp)}</td>
+      <td style="text-align:right">${fmt(kApp)}</td>
+    </tr>`);
+  });
+
+  document.getElementById('no-breakdown-body').innerHTML = hasAny
+    ? bkRows.join('')
+    : '<tr class="empty-row"><td colspan="7">Enter plant quantities above to see breakdown</td></tr>';
+
+  const dash = '—';
+  if (!hasAny) {
+    ['no-ann-n','no-ann-p','no-ann-k','no-loss-n','no-loss-p','no-loss-k',
+     'no-run-n','no-run-p','no-run-k'].forEach(id => document.getElementById(id).textContent = dash);
+    return;
+  }
+
+  const annN = sumNrun * appsPerYr, annP = sumPrun * appsPerYr, annK = sumKrun * appsPerYr;
+  const lossN = annN * fertLoss,   lossP = annP * fertLoss,   lossK = annK * fertLoss;
+  const runN  = lossN * rrReach,   runP  = lossP * rrReach,   runK  = lossK * rrReach;
+
+  document.getElementById('no-ann-n').textContent  = fmt(annN);
+  document.getElementById('no-ann-p').textContent  = fmt(annP);
+  document.getElementById('no-ann-k').textContent  = fmt(annK);
+  document.getElementById('no-loss-n').textContent = fmt(lossN);
+  document.getElementById('no-loss-p').textContent = fmt(lossP);
+  document.getElementById('no-loss-k').textContent = fmt(lossK);
+  document.getElementById('no-run-n').textContent  = fmt(runN);
+  document.getElementById('no-run-p').textContent  = fmt(runP);
+  document.getElementById('no-run-k').textContent  = fmt(runK);
+}
+
+function noToggleBreakdown() {
+  const body  = document.getElementById('no-bk-body');
+  const caret = document.getElementById('no-bk-caret');
+  const btn   = document.getElementById('no-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// ── Nutrient override modal ───────────────────────────────────────────────────
+const NUT_VAR_DEFS = [
+  { group: 'Fertilizer Composition (10-6-4)' },
+  { key: 'nPct',        label: 'Nitrogen (N) fraction',           unit: 'e.g. 0.10 = 10%' },
+  { key: 'pPct',        label: 'Phosphorus (P) fraction',         unit: 'e.g. 0.06 = 6%' },
+  { key: 'kPct',        label: 'Potassium (K) fraction',          unit: 'e.g. 0.04 = 4%' },
+  { key: 'appRate',     label: 'Fertilizer application rate',     unit: 'lbs per 100 sf' },
+  { group: 'Planted Project' },
+  { key: 'abRunoff',    label: 'Soil A/B runoff factor',          unit: 'fraction (0.40 = 40%)' },
+  { key: 'cdRunoff',    label: 'Soil C/D runoff factor',          unit: 'fraction (0.70 = 70%)' },
+  { key: 'estYears',    label: 'Establishment years',             unit: 'years' },
+  { group: 'Nursery Operation' },
+  { key: 'nursRunoff',  label: 'Nursery runoff factor',           unit: 'fraction' },
+  { key: 'appsPerYr',  label: 'Applications per year',           unit: 'applications' },
+  { key: 'fertLoss',    label: 'Fertilizer loss rate',            unit: 'fraction (0.30 = 30%)' },
+  { key: 'runoffReach', label: 'Leached nutrients reaching runoff', unit: 'fraction (0.50 = 50%)' },
+];
+
+function nutBuildModal() {
+  let html = '';
+  NUT_VAR_DEFS.forEach(v => {
+    if (v.group) {
+      html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`;
+      return;
+    }
+    const def     = NUT_DEFAULTS[v.key];
+    const cur     = NUT_OV[v.key] ?? '';
+    const changed = v.key in NUT_OV ? ' changed' : '';
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${def}</td>
+      <td><input class="var-input${changed}" id="nut-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${def}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('nut-var-tbody').innerHTML = html;
+}
+
+function nutOpenModal() {
+  nutBuildModal();
+  document.getElementById('nut-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function nutCloseModal() {
+  document.getElementById('nut-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function nutHandleOverlayClick(e) { if (e.target === e.currentTarget) nutCloseModal(); }
+
+function nutApplyAndClose() {
+  NUT_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`nut-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num > 0) NUT_OV[v.key] = num;
+    else delete NUT_OV[v.key];
+  });
+  document.getElementById('nut-override-btn').classList.toggle('active', Object.keys(NUT_OV).length > 0);
+  nutRecalcPP(); nutRecalcNO();
+  nutCloseModal();
+}
+function nutResetOverrides() {
+  Object.keys(NUT_OV).forEach(k => delete NUT_OV[k]);
+  NUT_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`nut-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('nut-override-btn').classList.remove('active');
+  nutRecalcPP(); nutRecalcNO();
 }
 </script>
 </body>
