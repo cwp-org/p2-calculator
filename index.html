@@ -629,7 +629,7 @@
 <!-- ── Tab bar ──────────────────────────────────────────── -->
 <nav class="tab-bar" role="tablist">
   <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single-Use Plastics</button>
-  <button class="tab-btn soon"   role="tab" onclick="return false">Fleet Vehicles <span class="soon-badge">Coming Soon</span></button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('fleet',this)">Fleet Vehicles</button>
   <button class="tab-btn soon"   role="tab" onclick="return false">Water Use <span class="soon-badge">Coming Soon</span></button>
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('nutrients',this)">Landscaping Nutrients</button>
@@ -774,13 +774,120 @@
      ════════════════════════════════════════════════════════ -->
 <div class="tab-panel" id="tab-fleet" role="tabpanel">
   <div class="panel-inner">
-    <div class="coming-soon">
-      <div class="cs-icon">🚛</div>
-      <div class="cs-title">Fleet Vehicle Calculator</div>
-      <p class="cs-desc">Estimate GHG reductions and cost savings from transitioning fleet vehicles to electric or alternative fuels.</p>
+
+    <p class="panel-title">Fleet Vehicle Fuel Spill Pollution Baseload</p>
+    <p class="panel-desc">
+      Enter annual fuel consumption for each liquid fuel type to estimate the baseline load of
+      hydrocarbon pollutants reaching stormwater from fuel spills and leaks during refueling.
+    </p>
+
+    <!-- Fuel inputs -->
+    <div class="input-grid">
+
+      <div class="input-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-label">Gasoline</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="fleet-gas" type="number" min="0" step="1"
+                 placeholder="0" inputmode="numeric" aria-label="Gasoline gallons per year"
+                 oninput="fleetRecalc()">
+          <span class="ic-unit">gal/yr</span>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">🛢️</span>
+        <div class="ic-label">Diesel</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="fleet-diesel" type="number" min="0" step="1"
+                 placeholder="0" inputmode="numeric" aria-label="Diesel gallons per year"
+                 oninput="fleetRecalc()">
+          <span class="ic-unit">gal/yr</span>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">🌿</span>
+        <div class="ic-label">Biodiesel</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="fleet-bio" type="number" min="0" step="1"
+                 placeholder="0" inputmode="numeric" aria-label="Biodiesel gallons per year"
+                 oninput="fleetRecalc()">
+          <span class="ic-unit">gal/yr</span>
+        </div>
+      </div>
+
+    </div><!-- /input-grid -->
+
+    <div class="nut-note">
+      ⚡ <span>Electric vehicles (EVs/PHEVs) do not produce liquid fuel spills during charging and are
+      excluded from this calculation. Only liquid fuels contribute to stormwater pollutant loading
+      during refueling.</span>
     </div>
-  </div>
-</div>
+
+    <!-- Results -->
+    <div class="results-card">
+      <div class="results-head">Estimated Hydrocarbon Pollutant Baseload to Stormwater</div>
+
+      <div class="metrics-row" style="grid-template-columns: repeat(2,1fr);">
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-low">—</div>
+          <div class="metric-label">Low Estimate</div>
+          <div class="metric-unit">lbs hydrocarbons / yr</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-high">—</div>
+          <div class="metric-label">High Estimate</div>
+          <div class="metric-unit">lbs hydrocarbons / yr</div>
+        </div>
+      </div>
+
+      <button class="breakdown-toggle" onclick="fleetToggleBk()"
+              aria-expanded="false" id="fleet-bk-toggle">
+        <i class="breakdown-caret" id="fleet-bk-caret">▶</i>
+        View per-fuel breakdown
+      </button>
+      <div class="breakdown-body" id="fleet-bk-body">
+        <div style="overflow-x:auto">
+          <table class="bk-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Fuel Type</th>
+                <th>Consumed (gal/yr)</th>
+                <th>Spilled (gal/yr)</th>
+                <th>Low Estimate (lbs/yr)</th>
+                <th>High Estimate (lbs/yr)</th>
+              </tr>
+            </thead>
+            <tbody id="fleet-bk-rows">
+              <tr class="empty-row"><td colspan="5">Enter fuel consumption above to see breakdown</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /results-card -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="fleet-override-btn" onclick="fleetOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <ul>
+        <li><b>Spill rate:</b> 0.01% (0.0001) of dispensed fuel is spilled during refueling. Source: California Air Resources Board study.</li>
+        <li><b>Washoff — low estimate:</b> 10% of spilled fuel is mobilized by rainfall runoff.</li>
+        <li><b>Washoff — high estimate:</b> 50% of spilled fuel is mobilized by rainfall runoff.</li>
+        <li>The U.S. Geological Survey found gasoline-related compounds in approximately 23% of stormwater samples from fuel spills, leaks, and atmospheric deposition.</li>
+        <li><b>Gasoline density:</b> 6.1 lbs/gal · <b>Diesel density:</b> 7.1 lbs/gal · <b>Biodiesel density:</b> 7.1 lbs/gal (approximated as equivalent to diesel).</li>
+        <li>Results represent the annual baseload of hydrocarbon pollutants entering stormwater from liquid-fuel fleet operations.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-fleet -->
 
 <!-- ════════════════════════════════════════════════════════
      TAB 3 · WATER USE
@@ -1274,6 +1381,47 @@
   </div><!-- /modal -->
 </div><!-- /nut-override-modal -->
 
+<!-- ── Fleet Vehicles Override Modal ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="fleet-override-modal"
+     onclick="fleetHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="fleet-modal-title">
+  <div class="modal">
+
+    <div class="modal-hd">
+      <div>
+        <h2 id="fleet-modal-title">Override Assumptions</h2>
+        <p>Customize any value below. Leave blank to use the default.</p>
+      </div>
+      <button class="modal-close" onclick="fleetCloseModal()" aria-label="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box" style="margin-bottom:20px">
+        <div><span class="eq-lhs">Fuel Spilled (gal/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Fuel Consumed × Spill Rate [0.0001]</div>
+        <div><span class="eq-lhs">Low Hydrocarbon Load (lbs/yr)&nbsp;</span> = Fuel Spilled × Washoff Low [10%] × Fuel Density [lbs/gal]</div>
+        <div><span class="eq-lhs">High Hydrocarbon Load (lbs/yr)</span> = Fuel Spilled × Washoff High [50%] × Fuel Density [lbs/gal]</div>
+      </div>
+
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="fleet-var-tbody"></tbody>
+      </table>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="fleetResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="fleetApplyAndClose()">Apply &amp; Close</button>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /fleet-override-modal -->
+
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
@@ -1473,7 +1621,7 @@ function resetOverrides() {
 
 // Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); }
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -1867,6 +2015,153 @@ function nutResetOverrides() {
   });
   document.getElementById('nut-override-btn').classList.remove('active');
   nutRecalcPP(); nutRecalcNO();
+}
+
+// ── Fleet Vehicles Calculator ─────────────────────────────────────────────────
+// Source: "Green Fleet (By Whole Fleet)" sheet, Existing Calculator Summary_042126.xlsx
+// Assumption: ~0.01% of dispensed fuel spilled during refueling (CA Air Resources Board)
+// Assumption: 10-50% wash-off of spilled fuel mobilized by stormwater (USGS)
+const FLEET_DEFAULTS = {
+  spillRate:        0.0001,  // fraction of fuel spilled at refueling
+  washoffLow:       0.10,    // low wash-off fraction (10%)
+  washoffHigh:      0.50,    // high wash-off fraction (50%)
+  densityGas:       6.1,     // lbs/gal — gasoline
+  densityDiesel:    7.1,     // lbs/gal — diesel
+  densityBiodiesel: 7.1,     // lbs/gal — biodiesel (approximated as diesel)
+};
+const FLEET_OV = {};
+function fleetVal(k) { return (k in FLEET_OV) ? FLEET_OV[k] : FLEET_DEFAULTS[k]; }
+
+const FLEET_FUELS = [
+  { id: 'gas',   label: 'Gasoline',  densKey: 'densityGas'       },
+  { id: 'diesel',label: 'Diesel',    densKey: 'densityDiesel'    },
+  { id: 'bio',   label: 'Biodiesel', densKey: 'densityBiodiesel' },
+];
+
+function fleetRecalc() {
+  const spillRate   = fleetVal('spillRate');
+  const washoffLow  = fleetVal('washoffLow');
+  const washoffHigh = fleetVal('washoffHigh');
+
+  let totLow = 0, totHigh = 0, hasAny = false;
+  const rows = [];
+
+  FLEET_FUELS.forEach(f => {
+    const consumed = Math.max(0, parseFloat(document.getElementById(`fleet-${f.id}`).value) || 0);
+    const density  = fleetVal(f.densKey);
+    const spilled  = consumed * spillRate;
+    const lowLbs   = spilled * washoffLow  * density;
+    const highLbs  = spilled * washoffHigh * density;
+
+    if (consumed > 0) {
+      hasAny = true;
+      totLow  += lowLbs;
+      totHigh += highLbs;
+      rows.push({ label: f.label, consumed, spilled, lowLbs, highLbs });
+    }
+  });
+
+  const dash = '—';
+  document.getElementById('fleet-r-low').textContent  = hasAny ? fmt(totLow)  : dash;
+  document.getElementById('fleet-r-high').textContent = hasAny ? fmt(totHigh) : dash;
+
+  const tbody = document.getElementById('fleet-bk-rows');
+  if (!hasAny) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Enter fuel consumption above to see breakdown</td></tr>';
+    return;
+  }
+
+  let html = rows.map(r =>
+    `<tr>
+      <td>${r.label}</td>
+      <td style="text-align:right">${r.consumed.toLocaleString('en-US')}</td>
+      <td style="text-align:right">${fmt(r.spilled, 3)}</td>
+      <td style="text-align:right">${fmt(r.lowLbs)}</td>
+      <td style="text-align:right">${fmt(r.highLbs)}</td>
+    </tr>`
+  ).join('');
+  html += `<tr>
+    <td><strong>Total</strong></td><td></td><td></td>
+    <td style="text-align:right"><strong>${fmt(totLow)}</strong></td>
+    <td style="text-align:right"><strong>${fmt(totHigh)}</strong></td>
+  </tr>`;
+  tbody.innerHTML = html;
+}
+
+function fleetToggleBk() {
+  const body  = document.getElementById('fleet-bk-body');
+  const caret = document.getElementById('fleet-bk-caret');
+  const btn   = document.getElementById('fleet-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// ── Fleet override modal ──────────────────────────────────────────────────────
+const FLEET_VAR_DEFS = [
+  { group: 'Spill &amp; Washoff' },
+  { key: 'spillRate',        label: 'Fuel spill rate at refueling',  unit: 'fraction (0.0001 = 0.01%)' },
+  { key: 'washoffLow',       label: 'Washoff — low estimate',        unit: 'fraction (0.10 = 10%)' },
+  { key: 'washoffHigh',      label: 'Washoff — high estimate',       unit: 'fraction (0.50 = 50%)' },
+  { group: 'Fuel Density' },
+  { key: 'densityGas',       label: 'Gasoline density',              unit: 'lbs/gal' },
+  { key: 'densityDiesel',    label: 'Diesel density',                unit: 'lbs/gal' },
+  { key: 'densityBiodiesel', label: 'Biodiesel density',             unit: 'lbs/gal' },
+];
+
+function fleetBuildModal() {
+  let html = '';
+  FLEET_VAR_DEFS.forEach(v => {
+    if (v.group) {
+      html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`;
+      return;
+    }
+    const def     = FLEET_DEFAULTS[v.key];
+    const cur     = FLEET_OV[v.key] ?? '';
+    const changed = v.key in FLEET_OV ? ' changed' : '';
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${def}</td>
+      <td><input class="var-input${changed}" id="fleet-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${def}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('fleet-var-tbody').innerHTML = html;
+}
+
+function fleetOpenModal() {
+  fleetBuildModal();
+  document.getElementById('fleet-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function fleetCloseModal() {
+  document.getElementById('fleet-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function fleetHandleOverlayClick(e) { if (e.target === e.currentTarget) fleetCloseModal(); }
+
+function fleetApplyAndClose() {
+  FLEET_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`fleet-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num > 0) FLEET_OV[v.key] = num;
+    else delete FLEET_OV[v.key];
+  });
+  document.getElementById('fleet-override-btn').classList.toggle('active', Object.keys(FLEET_OV).length > 0);
+  fleetRecalc();
+  fleetCloseModal();
+}
+function fleetResetOverrides() {
+  Object.keys(FLEET_OV).forEach(k => delete FLEET_OV[k]);
+  FLEET_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`fleet-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('fleet-override-btn').classList.remove('active');
+  fleetRecalc();
 }
 </script>
 </body>
