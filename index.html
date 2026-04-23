@@ -610,6 +610,97 @@
       flex-shrink: 0;
     }
 
+    /* ── Water Use Calculator ─────────────────────────── */
+    .water-zip-block {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 22px;
+    }
+    .water-zip-status {
+      margin-top: 6px;
+      font-size: 11.5px;
+      min-height: 16px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .water-zip-status.ok      { color: #2d9d5a; font-style: normal; font-weight: 600; }
+    .water-zip-status.err     { color: #c0392b; font-style: normal; }
+    .water-zip-status.loading { color: var(--muted); }
+
+    .water-zones {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+    .water-zones-hd {
+      background: var(--green-pale);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-dark);
+      border-bottom: 1px solid var(--border);
+    }
+    .water-zone-header {
+      display: grid;
+      grid-template-columns: 1fr 150px 1fr;
+      padding: 7px 16px;
+      background: #f7faf8;
+      border-bottom: 1px solid var(--border);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--muted);
+      gap: 12px;
+    }
+    .water-zone-row {
+      display: grid;
+      grid-template-columns: 1fr 150px 1fr;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      gap: 12px;
+    }
+    .water-zone-row:last-child { border-bottom: none; }
+    .water-zone-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .water-irr-select {
+      width: 100%;
+      padding: 7px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--text);
+      background: #f9fbfa;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .water-irr-select:focus { outline: none; border-color: var(--green-light); }
+    .water-peak-bar {
+      padding: 9px 20px;
+      font-size: 12.5px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: #f7faf8;
+    }
+    .water-peak-bar strong { color: var(--green-dark); }
+    @media (max-width: 560px) {
+      .water-zone-header,
+      .water-zone-row {
+        grid-template-columns: 1fr;
+      }
+      .water-zone-header > div:not(:first-child),
+      .water-zone-row > div:not(:first-child) { padding-left: 12px; }
+    }
+
     /* ── Responsive tweaks ────────────────────────────── */
     @media (max-width: 520px) {
       .site-header, .panel-inner { padding-left: 16px; padding-right: 16px; }
@@ -630,7 +721,7 @@
 <nav class="tab-bar" role="tablist">
   <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single-Use Plastics</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('fleet',this)">Fleet Vehicles</button>
-  <button class="tab-btn soon"   role="tab" onclick="return false">Water Use <span class="soon-badge">Coming Soon</span></button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('water',this)">Water Use</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('nutrients',this)">Landscaping Nutrients</button>
 </nav>
@@ -894,13 +985,190 @@
      ════════════════════════════════════════════════════════ -->
 <div class="tab-panel" id="tab-water" role="tabpanel">
   <div class="panel-inner">
-    <div class="coming-soon">
-      <div class="cs-icon">💧</div>
-      <div class="cs-title">Water Use Reduction Calculator</div>
-      <p class="cs-desc">Calculate water savings from native planting, efficient irrigation, and other outdoor water conservation practices.</p>
+
+    <p class="panel-title">Landscape Water Use Savings</p>
+    <p class="panel-desc">
+      Enter your zip code and landscape zone details to estimate monthly water savings from efficient
+      or drought-tolerant plantings. Methodology follows the EPA WaterSense / LEED v4 landscape
+      water budget approach using local evapotranspiration and rainfall data.
+    </p>
+
+    <!-- Zip code -->
+    <div class="water-zip-block">
+      <div class="input-card" style="width:240px">
+        <span class="ic-icon">📍</span>
+        <div class="ic-label">Service Area Zip Code</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="water-zip" type="text" maxlength="5"
+                 placeholder="e.g. 90210" inputmode="numeric"
+                 aria-label="Zip code" oninput="waterZipInput()">
+          <span class="ic-unit">zip</span>
+        </div>
+        <div id="water-zip-status" class="water-zip-status"></div>
+      </div>
     </div>
-  </div>
-</div>
+
+    <!-- Zone table -->
+    <div class="water-zones">
+      <div class="water-zones-hd">
+        <span>Landscape Zone Inputs</span>
+        <span style="font-size:11px;color:var(--muted);font-weight:400">Water requirement: Medium (fixed)</span>
+      </div>
+      <div class="water-zone-header">
+        <div>Zone / Plant Type</div>
+        <div>Area (sq ft)</div>
+        <div>Irrigation Type</div>
+      </div>
+      <div class="water-zone-row">
+        <div class="water-zone-name">🌳 Trees</div>
+        <div><input class="ic-input water-zone-area" id="wz-area-trees" type="number"
+               min="0" step="1" placeholder="0" oninput="waterRecalc()"></div>
+        <div><select class="water-irr-select" id="wz-irr-trees" onchange="waterRecalc()">
+          <option value="drip_std">Drip (standard)</option>
+          <option value="drip_pc">Drip (pressure compensating)</option>
+          <option value="spray">Fixed spray</option>
+          <option value="micro">Micro spray</option>
+          <option value="rotor">Rotor</option>
+          <option value="none">No irrigation</option>
+        </select></div>
+      </div>
+      <div class="water-zone-row">
+        <div class="water-zone-name">🌿 Shrubs</div>
+        <div><input class="ic-input water-zone-area" id="wz-area-shrubs" type="number"
+               min="0" step="1" placeholder="0" oninput="waterRecalc()"></div>
+        <div><select class="water-irr-select" id="wz-irr-shrubs" onchange="waterRecalc()">
+          <option value="drip_std">Drip (standard)</option>
+          <option value="drip_pc">Drip (pressure compensating)</option>
+          <option value="spray">Fixed spray</option>
+          <option value="micro">Micro spray</option>
+          <option value="rotor">Rotor</option>
+          <option value="none">No irrigation</option>
+        </select></div>
+      </div>
+      <div class="water-zone-row">
+        <div class="water-zone-name">🌱 Groundcover</div>
+        <div><input class="ic-input water-zone-area" id="wz-area-groundcover" type="number"
+               min="0" step="1" placeholder="0" oninput="waterRecalc()"></div>
+        <div><select class="water-irr-select" id="wz-irr-groundcover" onchange="waterRecalc()">
+          <option value="drip_std">Drip (standard)</option>
+          <option value="drip_pc">Drip (pressure compensating)</option>
+          <option value="spray">Fixed spray</option>
+          <option value="micro">Micro spray</option>
+          <option value="rotor">Rotor</option>
+          <option value="none">No irrigation</option>
+        </select></div>
+      </div>
+      <div class="water-zone-row">
+        <div class="water-zone-name">🏡 Turfgrass</div>
+        <div><input class="ic-input water-zone-area" id="wz-area-turf" type="number"
+               min="0" step="1" placeholder="0" oninput="waterRecalc()"></div>
+        <div><select class="water-irr-select" id="wz-irr-turf" onchange="waterRecalc()">
+          <option value="drip_std">Drip (standard)</option>
+          <option value="drip_pc">Drip (pressure compensating)</option>
+          <option value="spray">Fixed spray</option>
+          <option value="micro">Micro spray</option>
+          <option value="rotor">Rotor</option>
+          <option value="none">No irrigation</option>
+        </select></div>
+      </div>
+    </div><!-- /water-zones -->
+
+    <!-- Results -->
+    <div class="results-card">
+      <div class="results-head">Estimated Monthly Water Savings</div>
+
+      <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric">
+          <div class="metric-val" id="water-r-allowance">—</div>
+          <div class="metric-label">Water Allowance</div>
+          <div class="metric-unit">gal / month (budget)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="water-r-lwr">—</div>
+          <div class="metric-label">Water Requirement</div>
+          <div class="metric-unit">gal / month (needed)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="water-r-saved">—</div>
+          <div class="metric-label">Gallons Saved</div>
+          <div class="metric-unit">gal / month</div>
+        </div>
+      </div>
+
+      <div id="water-peak-bar" class="water-peak-bar" style="display:none">
+        Peak month: <strong id="water-peak-month">—</strong> &nbsp;·&nbsp;
+        Peak ETo: <strong id="water-peak-eto">—</strong> in &nbsp;·&nbsp;
+        Peak Rainfall: <strong id="water-peak-rf">—</strong> in
+      </div>
+
+      <button class="breakdown-toggle" onclick="waterToggleBk()"
+              aria-expanded="false" id="water-bk-toggle">
+        <i class="breakdown-caret" id="water-bk-caret">▶</i>
+        View monthly climate data &amp; zone breakdown
+      </button>
+      <div class="breakdown-body" id="water-bk-body">
+
+        <div style="overflow-x:auto; padding:14px 20px 6px">
+          <p style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px">Monthly Climate Data</p>
+          <table class="bk-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Month</th>
+                <th>ETo (in)</th>
+                <th>Rainfall (in)</th>
+                <th>Watering Demand (in)</th>
+              </tr>
+            </thead>
+            <tbody id="water-monthly-rows">
+              <tr class="empty-row"><td colspan="4">Enter zip code above to see monthly climate data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="overflow-x:auto; padding:14px 20px">
+          <p style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px">Zone Landscape Water Requirement</p>
+          <table class="bk-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Zone</th>
+                <th>Area (sf)</th>
+                <th>KL (medium)</th>
+                <th>DULQ</th>
+                <th style="text-align:left">Irrigation</th>
+                <th>LWR (gal/mo)</th>
+              </tr>
+            </thead>
+            <tbody id="water-zone-rows">
+              <tr class="empty-row"><td colspan="6">Enter zip code and zone areas to see breakdown</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div><!-- /results-card -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="water-override-btn" onclick="waterOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <ul>
+        <li><b>Climate data:</b> Monthly evapotranspiration (ETo) and rainfall by zip code sourced from NOAA/PRISM 30-year climate normals. Covers ~30,000 US zip codes.</li>
+        <li><b>Peak month:</b> The month with the highest net watering demand (ETo − Rainfall). All water budget calculations use peak-month values.</li>
+        <li><b>Landscape Water Allowance:</b> 0.70 × (Total Area × Peak ETo × 0.6233). The 0.70 ET adjustment factor is from the EPA WaterSense / LEED v4 landscape water budget method.</li>
+        <li><b>Landscape Coefficient (KL) — Medium:</b> Trees 0.5 · Shrubs 0.5 · Groundcover 0.5 · Turfgrass 0.7. Source: WUCOLS IV / LIMP methodology.</li>
+        <li><b>Distribution Uniformity (DULQ):</b> Drip std 0.70 · Drip press comp 0.90 · Fixed spray 0.65 · Micro spray 0.70 · Rotor 0.70 · No irrigation 1.00.</li>
+        <li><b>LWRH (zone requirement):</b> max(0, (1÷DULQ) × (Peak ETo × KL − 0.25 × Peak RF) × Area × 0.6233). The 0.25 rainfall credit represents effective precipitation used by plants.</li>
+        <li><b>Unit conversion:</b> 0.6233 gal per (inch × sq ft). Gallons Saved = Water Allowance − Total LWR.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-water -->
 
 <!-- ════════════════════════════════════════════════════════
      TAB 4 · LANDSCAPING PRACTICES
@@ -1422,6 +1690,43 @@
   </div><!-- /modal -->
 </div><!-- /fleet-override-modal -->
 
+<!-- ── Water Use Override Modal ───────────────────────────────────────────────── -->
+<div class="modal-overlay" id="water-override-modal"
+     onclick="waterHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="water-modal-title">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <h2 id="water-modal-title">Override Assumptions — Water Use</h2>
+        <p>Customize any value below. Leave blank to use the default.</p>
+      </div>
+      <button class="modal-close" onclick="waterCloseModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box">
+        <div><span class="eq-lhs">Water Allowance (gal/mo)&nbsp;</span> = ET Adj × Total Area × Peak ETo × Conv</div>
+        <div><span class="eq-lhs">LWR per zone (gal/mo)&nbsp;&nbsp;&nbsp;</span> = max(0, (1÷DULQ) × (Peak ETo × KL − RF Credit × Peak RF) × Area × Conv)</div>
+        <div><span class="eq-lhs">Gallons Saved (gal/mo)&nbsp;&nbsp;&nbsp;</span> = Water Allowance − Total LWR</div>
+        <div class="eq-note">&nbsp;&nbsp;↳ Peak month = month with highest (ETo − Rainfall); RF Credit = effective rainfall fraction</div>
+      </div>
+
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="water-var-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="waterResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="waterApplyAndClose()">Apply &amp; Close</button>
+    </div>
+  </div><!-- /modal -->
+</div><!-- /water-override-modal -->
+
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
@@ -1621,7 +1926,7 @@ function resetOverrides() {
 
 // Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); }
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); waterCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -2162,6 +2467,317 @@ function fleetResetOverrides() {
   });
   document.getElementById('fleet-override-btn').classList.remove('active');
   fleetRecalc();
+}
+
+// ── Water Use Calculator ──────────────────────────────────────────────────────
+// Source: WaterUse.xlsm (Baseline Calculation + Landscape Water Requirement sheets)
+// Climate data: rainfall-data.json pre-extracted from Rainfall.xlsx (NOAA/PRISM normals)
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const WATER_ZONES_DEF = [
+  { id: 'trees',       label: 'Trees'       },
+  { id: 'shrubs',      label: 'Shrubs'      },
+  { id: 'groundcover', label: 'Groundcover' },
+  { id: 'turf',        label: 'Turfgrass'   },
+];
+
+const WATER_DEFAULTS = {
+  etAdjFactor:    0.70,   // ET adjustment factor for LWA (WaterSense/LEED v4)
+  rfCredit:       0.25,   // rainfall credit fraction in LWRH formula
+  conv:           0.6233, // in · sf → gal conversion factor
+  klTrees:        0.50,   // KL medium — Trees
+  klShrubs:       0.50,   // KL medium — Shrubs
+  klGroundcover:  0.50,   // KL medium — Groundcover
+  klTurf:         0.70,   // KL medium — Turfgrass
+  dulqDripStd:    0.70,   // DULQ — Drip standard
+  dulqDripPc:     0.90,   // DULQ — Drip pressure compensating
+  dulqSpray:      0.65,   // DULQ — Fixed spray
+  dulqMicro:      0.70,   // DULQ — Micro spray
+  dulqRotor:      0.70,   // DULQ — Rotor
+};
+const WATER_OV = {};
+function waterVal(k) { return (k in WATER_OV) ? WATER_OV[k] : WATER_DEFAULTS[k]; }
+
+const IRR_LABELS = {
+  drip_std: 'Drip (standard)',
+  drip_pc:  'Drip (press comp)',
+  spray:    'Fixed spray',
+  micro:    'Micro spray',
+  rotor:    'Rotor',
+  none:     'No irrigation',
+};
+
+// Lazy-loaded climate data
+let waterClimateData = null;
+let waterCurrentZip  = null;
+let waterZipData     = null;
+
+function waterZipInput() {
+  const z = document.getElementById('water-zip').value.trim();
+  if (/^\d{5}$/.test(z)) {
+    waterLookupZip(z);
+  } else {
+    waterSetZipStatus('', '');
+    waterZipData    = null;
+    waterCurrentZip = null;
+    waterRecalc();
+  }
+}
+
+async function waterEnsureData() {
+  if (waterClimateData !== null) return true;
+  waterSetZipStatus('loading', 'Loading climate data…');
+  try {
+    const resp = await fetch('rainfall-data.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    waterClimateData = await resp.json();
+    return true;
+  } catch (e) {
+    waterSetZipStatus('err', 'Failed to load climate data. Please refresh the page.');
+    return false;
+  }
+}
+
+async function waterLookupZip(zip) {
+  if (waterCurrentZip === zip) return;
+  const ok = await waterEnsureData();
+  if (!ok) return;
+  const entry = waterClimateData[zip];
+  if (!entry) {
+    waterSetZipStatus('err', `Zip code ${zip} not found in climate database.`);
+    waterZipData    = null;
+    waterCurrentZip = null;
+    waterRecalc();
+    return;
+  }
+  waterZipData    = entry;
+  waterCurrentZip = zip;
+  waterSetZipStatus('ok', `✓ Climate data loaded for ${zip}`);
+  waterRecalc();
+}
+
+function waterSetZipStatus(cls, msg) {
+  const el = document.getElementById('water-zip-status');
+  el.className = 'water-zip-status' + (cls ? ' ' + cls : '');
+  el.textContent = msg;
+}
+
+function waterRecalc() {
+  if (!waterZipData) { waterClearResults(); return; }
+
+  const et = waterZipData.et;
+  const rf = waterZipData.rf;
+
+  // Peak watering month: highest (ETo − Rainfall)
+  let peakIdx = 0, peakDemand = -Infinity;
+  for (let i = 0; i < 12; i++) {
+    const d = et[i] - rf[i];
+    if (d > peakDemand) { peakDemand = d; peakIdx = i; }
+  }
+  const peakEto   = et[peakIdx];
+  const peakRf    = rf[peakIdx];
+  const peakMonth = MONTHS[peakIdx];
+
+  // Always update monthly table once we have zip data
+  waterUpdateMonthlyTable(et, rf, peakIdx);
+
+  // Peak info bar
+  const peakBar = document.getElementById('water-peak-bar');
+  peakBar.style.display = 'block';
+  document.getElementById('water-peak-month').textContent = peakMonth;
+  document.getElementById('water-peak-eto').textContent   = peakEto.toFixed(3);
+  document.getElementById('water-peak-rf').textContent    = peakRf.toFixed(3);
+
+  // Override-aware constants
+  const etAdj = waterVal('etAdjFactor');
+  const rfCr  = waterVal('rfCredit');
+  const conv  = waterVal('conv');
+  const klMap = {
+    trees:       waterVal('klTrees'),
+    shrubs:      waterVal('klShrubs'),
+    groundcover: waterVal('klGroundcover'),
+    turf:        waterVal('klTurf'),
+  };
+  const dulqMap = {
+    drip_std: waterVal('dulqDripStd'),
+    drip_pc:  waterVal('dulqDripPc'),
+    spray:    waterVal('dulqSpray'),
+    micro:    waterVal('dulqMicro'),
+    rotor:    waterVal('dulqRotor'),
+    none:     1.00,
+  };
+
+  // Sum zone areas for LWA
+  let totalArea = 0;
+  WATER_ZONES_DEF.forEach(z => {
+    totalArea += Math.max(0, parseFloat(document.getElementById(`wz-area-${z.id}`).value) || 0);
+  });
+
+  if (totalArea === 0) {
+    ['water-r-allowance','water-r-lwr','water-r-saved'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = '—'; el.style.color = '';
+    });
+    document.getElementById('water-zone-rows').innerHTML =
+      '<tr class="empty-row"><td colspan="6">Enter zone areas above to see breakdown</td></tr>';
+    return;
+  }
+
+  // Landscape Water Allowance
+  const lwa = etAdj * totalArea * peakEto * conv;
+
+  // Landscape Water Requirement per zone
+  let totalLwr = 0;
+  const zoneRows = [];
+  WATER_ZONES_DEF.forEach(z => {
+    const area   = Math.max(0, parseFloat(document.getElementById(`wz-area-${z.id}`).value) || 0);
+    const irrKey = document.getElementById(`wz-irr-${z.id}`).value;
+    const kl     = klMap[z.id];
+    const dulq   = dulqMap[irrKey];
+    const lwrh   = area > 0
+      ? Math.max(0, (1 / dulq) * (peakEto * kl - rfCr * peakRf) * area * conv)
+      : 0;
+    totalLwr += lwrh;
+    zoneRows.push({ label: z.label, area, kl, dulq, irrKey, lwrh });
+  });
+
+  const saved = lwa - totalLwr;
+
+  // Update metrics
+  document.getElementById('water-r-allowance').textContent = fmt(lwa);
+  document.getElementById('water-r-lwr').textContent       = fmt(totalLwr);
+  const savedEl = document.getElementById('water-r-saved');
+  savedEl.textContent = saved >= 0 ? fmt(saved) : '−' + fmt(-saved);
+  savedEl.style.color = saved >= 0 ? '' : '#c0392b';
+
+  // Zone breakdown table
+  const zHtml = zoneRows.map(z =>
+    `<tr>
+      <td>${z.label}</td>
+      <td style="text-align:right">${z.area > 0 ? z.area.toLocaleString('en-US') : '—'}</td>
+      <td style="text-align:right">${z.kl}</td>
+      <td style="text-align:right">${z.dulq}</td>
+      <td>${IRR_LABELS[z.irrKey] || z.irrKey}</td>
+      <td style="text-align:right">${z.area > 0 ? fmt(z.lwrh) : '—'}</td>
+    </tr>`
+  ).join('') + `<tr>
+    <td><strong>Total</strong></td>
+    <td style="text-align:right"><strong>${totalArea.toLocaleString('en-US')}</strong></td>
+    <td></td><td></td><td></td>
+    <td style="text-align:right"><strong>${fmt(totalLwr)}</strong></td>
+  </tr>`;
+  document.getElementById('water-zone-rows').innerHTML = zHtml;
+}
+
+function waterUpdateMonthlyTable(et, rf, peakIdx) {
+  document.getElementById('water-monthly-rows').innerHTML = MONTHS.map((m, i) => {
+    const demand = et[i] - rf[i];
+    const isPeak = i === peakIdx;
+    const style  = isPeak ? ' style="background:#e8f5ee;font-weight:700"' : '';
+    return `<tr${style}>
+      <td>${m}${isPeak ? ' ★' : ''}</td>
+      <td style="text-align:right">${et[i].toFixed(3)}</td>
+      <td style="text-align:right">${rf[i].toFixed(3)}</td>
+      <td style="text-align:right">${demand.toFixed(3)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function waterClearResults() {
+  ['water-r-allowance','water-r-lwr','water-r-saved'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '—'; el.style.color = '';
+  });
+  document.getElementById('water-peak-bar').style.display = 'none';
+  document.getElementById('water-monthly-rows').innerHTML =
+    '<tr class="empty-row"><td colspan="4">Enter zip code above to see monthly climate data</td></tr>';
+  document.getElementById('water-zone-rows').innerHTML =
+    '<tr class="empty-row"><td colspan="6">Enter zip code and zone areas to see breakdown</td></tr>';
+}
+
+function waterToggleBk() {
+  const body  = document.getElementById('water-bk-body');
+  const caret = document.getElementById('water-bk-caret');
+  const btn   = document.getElementById('water-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// ── Water Use override modal ──────────────────────────────────────────────────
+const WATER_VAR_DEFS = [
+  { group: 'Conversion &amp; Adjustment Factors' },
+  { key: 'etAdjFactor',   label: 'ET adjustment factor (LWA)',       unit: 'fraction (0.70 = 70%)' },
+  { key: 'rfCredit',      label: 'Rainfall credit factor (LWRH)',     unit: 'fraction (0.25 = 25%)' },
+  { key: 'conv',          label: 'Unit conversion (in · sf → gal)',   unit: 'gal / (in · sf)' },
+  { group: 'Landscape Coefficient (KL) — Medium Water Requirement' },
+  { key: 'klTrees',       label: 'Trees — KL (medium)',               unit: 'dimensionless' },
+  { key: 'klShrubs',      label: 'Shrubs — KL (medium)',              unit: 'dimensionless' },
+  { key: 'klGroundcover', label: 'Groundcover — KL (medium)',         unit: 'dimensionless' },
+  { key: 'klTurf',        label: 'Turfgrass — KL (medium)',           unit: 'dimensionless' },
+  { group: 'Distribution Uniformity (DULQ) by Irrigation Type' },
+  { key: 'dulqDripStd',   label: 'Drip (standard)',                   unit: 'fraction' },
+  { key: 'dulqDripPc',    label: 'Drip (pressure compensating)',      unit: 'fraction' },
+  { key: 'dulqSpray',     label: 'Fixed spray',                       unit: 'fraction' },
+  { key: 'dulqMicro',     label: 'Micro spray',                       unit: 'fraction' },
+  { key: 'dulqRotor',     label: 'Rotor',                             unit: 'fraction' },
+];
+
+function waterBuildModal() {
+  let html = '';
+  WATER_VAR_DEFS.forEach(v => {
+    if (v.group) {
+      html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`;
+      return;
+    }
+    const def     = WATER_DEFAULTS[v.key];
+    const cur     = WATER_OV[v.key] ?? '';
+    const changed = v.key in WATER_OV ? ' changed' : '';
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${def}</td>
+      <td><input class="var-input${changed}" id="water-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${def}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('water-var-tbody').innerHTML = html;
+}
+
+function waterOpenModal() {
+  waterBuildModal();
+  document.getElementById('water-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function waterCloseModal() {
+  document.getElementById('water-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function waterHandleOverlayClick(e) { if (e.target === e.currentTarget) waterCloseModal(); }
+
+function waterApplyAndClose() {
+  WATER_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`water-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num > 0) WATER_OV[v.key] = num;
+    else delete WATER_OV[v.key];
+  });
+  document.getElementById('water-override-btn').classList.toggle('active', Object.keys(WATER_OV).length > 0);
+  waterRecalc();
+  waterCloseModal();
+}
+
+function waterResetOverrides() {
+  Object.keys(WATER_OV).forEach(k => delete WATER_OV[k]);
+  WATER_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`water-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('water-override-btn').classList.remove('active');
+  waterRecalc();
 }
 </script>
 </body>
