@@ -719,7 +719,7 @@
 
 <!-- ── Tab bar ──────────────────────────────────────────── -->
 <nav class="tab-bar" role="tablist">
-  <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single-Use Plastics</button>
+  <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single Use Plastic Reduction</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('fleet',this)">Fleet Vehicles</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('water',this)">Water Use</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
@@ -732,10 +732,14 @@
 <div class="tab-panel active" id="tab-plastics" role="tabpanel">
   <div class="panel-inner">
 
-    <p class="panel-title">Single-Use Plastic Reduction</p>
+    <p class="panel-title">Single Use Plastic Reduction</p>
     <p class="panel-desc">
       Enter the number of single-use plastic items eliminated to estimate reductions in
       plastic waste, greenhouse gas emissions, water use, and cost impacts.
+      <br><span style="font-size:12px;color:var(--muted)">
+        <b>Abbreviations:</b> PET = Polyethylene Terephthalate &nbsp;·&nbsp;
+        HDPE = High-Density Polyethylene &nbsp;·&nbsp; PP = Polypropylene
+      </span>
     </p>
 
     <!-- Input cards -->
@@ -848,12 +852,30 @@
         </button>
       </div>
       <ul>
-        <li><b>Water Bottles (PET):</b> 9.32 g/bottle (IBWA, NAPCOR) · 0.12 kg CO₂-eq/bottle (<a href="https://nems.nih.gov/Documents/PETWaterBottlesEnvironmentalImpact.pdf" target="_blank" rel="noopener">NIH lifecycle report</a>) · 1.4 gal water/bottle (IBWA) · $0.02/bottle (Science Direct). GHG does not include transportation impacts.</li>
-        <li><b>Grocery Bags (HDPE):</b> 6 g/bag · 0.027 kg CO₂e/bag · 0.04 gal/bag (150 mL) · $0.006/bag (Duke 2025; Social Cost of Carbon $190/MT CO₂).</li>
-        <li><b>Straws (PP):</b> 0.5 g/straw · 0.00146 kg CO₂/straw · 0.03 gal/straw. Cost via SCC $190/MT CO₂.</li>
-        <li><b>Cutlery (PP):</b> 2.49 g/piece · 0.00252 kg CO₂/piece · 0.19 gal/piece (lifecycle range 0.16–0.22 gal). Cost via SCC $190/MT CO₂.</li>
-        <li>Social Cost of Carbon: $190 per metric ton CO₂ used for cost savings where direct cost data is unavailable.</li>
-        <li>Water consumption estimates are conservative figures; actual savings may vary by product source and supply chain.</li>
+        <li><b>Water Bottles (PET):</b>
+          9.32 g/bottle (<a href="https://bottledwater.org/wp-content/uploads/2024/04/IBWA-Trayak-Full-Report-32321.pdf" target="_blank" rel="noopener">IBWA/Trayak, 2021</a>) ·
+          0.12 kg CO₂-eq/bottle (<a href="https://nems.nih.gov/Documents/PETWaterBottlesEnvironmentalImpact.pdf" target="_blank" rel="noopener">NIH lifecycle report, 2023</a>) ·
+          1.4 gal/bottle (<a href="https://bottledwater.org/wp-content/uploads/2024/08/IBWA-Benchmarking-Executive-Summary_May-2024.pdf" target="_blank" rel="noopener">IBWA Benchmarking, 2024</a>) ·
+          $0.05/bottle (<a href="https://www.sciencedirect.com/science/article/pii/S2667010025000046" target="_blank" rel="noopener">Environmental Challenges, 2025</a>).
+          GHG does not include transportation impacts. Assumed bottle size: 16.9 oz (500 mL) PET.</li>
+        <li><b>Grocery Bags (HDPE):</b>
+          6 g/bag (<a href="https://plasticsparadox.com/wp-content/uploads/2021/01/Life-Cycle-Assessment-of-Reusable-and-Single-use-Plastic-Bags-in-California.pdf" target="_blank" rel="noopener">Greene, 2011</a>) ·
+          0.027 kg CO₂e/bag (<a href="https://assets.publishing.service.gov.uk/media/5a7bff74ed915d01ba1ca7c7/scho0711buan-e-e.pdf" target="_blank" rel="noopener">UK Environment Agency, 2011</a>) ·
+          0.04 gal/bag (150 mL) (<a href="https://plasticsparadox.com/wp-content/uploads/2021/01/Life-Cycle-Assessment-of-Reusable-and-Single-use-Plastic-Bags-in-California.pdf" target="_blank" rel="noopener">Greene, 2011</a>).
+          Cost derived from Social Cost of Carbon ($190/MT CO₂, <a href="https://www.epa.gov/system/files/documents/2023-12/epa_scghg_2023_report_final.pdf" target="_blank" rel="noopener">EPA NCEE, 2023</a>).</li>
+        <li><b>Straws (PP):</b>
+          0.5 g/straw (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8897272/" target="_blank" rel="noopener">Sci Total Environ, 2022</a>) ·
+          0.00146 kg CO₂/straw (<a href="https://www.mdpi.com/2227-9717/9/6/1007" target="_blank" rel="noopener">Processes, 2021</a>) ·
+          0.03 gal/straw (<a href="https://link.springer.com/article/10.1007/s11269-010-9723-8" target="_blank" rel="noopener">Water Resources Management, 2011</a>).
+          Cost via Social Cost of Carbon ($190/MT CO₂, <a href="https://www.epa.gov/system/files/documents/2023-12/epa_scghg_2023_report_final.pdf" target="_blank" rel="noopener">EPA NCEE, 2023</a>).</li>
+        <li><b>Cutlery / Utensils (PP):</b>
+          2.49 g/piece (average of medium-weight cutlery from supplier websites; heavy-duty pieces may weigh more) ·
+          0.00252 kg CO₂/piece (<a href="https://www.mdpi.com/2227-9717/9/6/1007" target="_blank" rel="noopener">Processes, 2021</a>) ·
+          0.19 gal/piece (lifecycle range 0.16–0.22 gal) (<a href="https://ecolipak.com/blogs/usage-guide/plastic-vs-compostable-disposable-cutlery-what-you-need-to-know" target="_blank" rel="noopener">Eco-Lipak</a>).
+          Cost via Social Cost of Carbon ($190/MT CO₂, <a href="https://www.epa.gov/system/files/documents/2023-12/epa_scghg_2023_report_final.pdf" target="_blank" rel="noopener">EPA NCEE, 2023</a>).</li>
+        <li><b>Social Cost of Carbon (SCC):</b> $190 per metric ton CO₂ used for cost savings where direct market cost data is unavailable.
+          Source: <a href="https://www.epa.gov/system/files/documents/2023-12/epa_scghg_2023_report_final.pdf" target="_blank" rel="noopener">U.S. EPA National Center for Environmental Economics (2023)</a>.</li>
+        <li>Water consumption estimates are conservative; actual savings may vary by product source and supply chain.</li>
       </ul>
     </div>
 
@@ -1731,9 +1753,9 @@
 // ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
   { id: 'bottles', inputId: 'in-bottles', label: 'Water Bottles (PET)',      unitLabel: 'bottle',
-    grams: 9.32, ghgKg: 0.12, waterGal: 1.4, costEa: 0.02 },
+    grams: 9.32, ghgKg: 0.12, waterGal: 1.4, costEa: 0.05 },
   { id: 'bags',    inputId: 'in-bags',    label: 'Grocery Bags (HDPE)',      unitLabel: 'bag',
-    grams: 6,    ghgKg: 0.027, waterGal: 0.04, costEa: 0.006 },
+    grams: 6,    ghgKg: 0.027, waterGal: 0.04, costEa: null },
   { id: 'straws',  inputId: 'in-straws',  label: 'Straws (PP)',              unitLabel: 'straw',
     grams: 0.5,  ghgKg: 0.00146, waterGal: 0.03, costEa: null },
   { id: 'cutlery', inputId: 'in-cutlery', label: 'Cutlery / Utensils (PP)', unitLabel: 'piece',
