@@ -610,6 +610,91 @@
       flex-shrink: 0;
     }
 
+    /* ── Landscaping Equipment Calculator ────────────── */
+    .leqp-select {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text);
+      background: #f9fbfa;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .leqp-select:focus { outline: none; border-color: var(--green-light); background: #fff; }
+    .leqp-equip-card { grid-column: 1 / -1; }
+    .leqp-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 600px) { .leqp-compare { grid-template-columns: 1fr; } }
+    .leqp-side {
+      padding: 14px 18px;
+      border-right: 1px solid var(--border);
+    }
+    .leqp-side:last-child { border-right: none; }
+    .leqp-side-hd {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .leqp-side-hd.battery { color: #2563eb; }
+    .leqp-side-hd.gas     { color: #b45309; }
+    .leqp-pair {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f4f2;
+      font-size: 13px;
+    }
+    .leqp-pair:last-child { border-bottom: none; }
+    .leqp-pair-label { color: var(--muted); }
+    .leqp-pair-val   { font-weight: 700; color: var(--text); }
+    .leqp-savings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #f7faf8;
+    }
+    @media (max-width: 600px) { .leqp-savings { grid-template-columns: 1fr; } }
+    .leqp-sav-cell {
+      padding: 16px 18px;
+      border-right: 1px solid var(--border);
+    }
+    .leqp-sav-cell:last-child { border-right: none; }
+    .leqp-sav-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .leqp-sav-val {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .leqp-sav-val.pos { color: #2d9d5a; }
+    .leqp-sav-val.neg { color: #c0392b; }
+    .leqp-sav-val.neu { color: var(--text); }
+    .leqp-pct {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .leqp-pct.pos { background: #d4efdf; color: #1e7a45; }
+    .leqp-pct.neg { background: #fde8e8; color: #c0392b; }
+    .leqp-pct.neu { background: #f0f0f0; color: var(--muted); }
+
     /* ── Water Use Calculator ─────────────────────────── */
     .water-zip-block {
       display: inline-flex;
@@ -724,6 +809,7 @@
   <button class="tab-btn"        role="tab" onclick="switchTab('water',this)">Water Use</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('nutrients',this)">Landscaping Nutrients</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('leqp',this)">Landscaping Equipment</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -1518,6 +1604,247 @@
   </div><!-- /panel-inner -->
 </div><!-- /tab-nutrients -->
 
+<!-- ════════════════════════════════════════════════════════
+     TAB 6 · LANDSCAPING EQUIPMENT
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-leqp" role="tabpanel">
+  <div class="panel-inner">
+
+    <p class="panel-title">Landscaping Equipment — Gas to Battery-Electric Conversion</p>
+    <p class="panel-desc">
+      Estimate annual cost and CO₂ emission reductions from switching gas-powered landscaping
+      equipment to battery-electric alternatives. Select equipment type, state, and usage hours
+      to see a side-by-side comparison. Electricity emission rates are state-specific grid data
+      from EPA eGRID 2023.
+    </p>
+
+    <!-- Inputs -->
+    <div class="input-grid" style="grid-template-columns: repeat(auto-fill, minmax(185px,1fr))">
+
+      <!-- Equipment type — full width -->
+      <div class="input-card leqp-equip-card">
+        <span class="ic-icon">🌿</span>
+        <div class="ic-label">Equipment Type</div>
+        <select class="leqp-select" id="leqp-equip" onchange="leqpRecalc()">
+          <option value="">— Select equipment —</option>
+          <option>Riding Zero-Turn Mower 42"</option>
+          <option>Riding Zero-Turn Mower 48"</option>
+          <option>Riding Zero-Turn Mower 52"</option>
+          <option>Riding Zero-Turn Mower 60"</option>
+          <option>Riding Zero-Turn Mower 72-74"</option>
+          <option>Stand-on Mower 48"</option>
+          <option>Stand-on Mower 52"</option>
+          <option>Stand-on Mower 60"</option>
+          <option>Push-Mower 30-32"</option>
+          <option>Handheld Blower 350-400 cfm</option>
+          <option>Backpack Blower 600-650 cfm</option>
+          <option>Backpack Blower 650-700 cfm</option>
+          <option>Backpack Blower 750-800 cfm</option>
+          <option>String Trimmer 16.5"</option>
+          <option>Hedge Trimmer 24"</option>
+          <option>Pole Saw 10"</option>
+          <option>Chainsaw 12"</option>
+          <option>Chainsaw 14"</option>
+          <option>Chainsaw 16"</option>
+          <option>Chainsaw 18"</option>
+          <option>Chainsaw 20"</option>
+        </select>
+      </div>
+
+      <!-- State -->
+      <div class="input-card">
+        <span class="ic-icon">📍</span>
+        <div class="ic-label">State</div>
+        <select class="leqp-select" id="leqp-state" onchange="leqpRecalc()">
+          <option value="">— Select state —</option>
+          <option value="AK">Alaska (AK)</option>
+          <option value="AL">Alabama (AL)</option>
+          <option value="AR">Arkansas (AR)</option>
+          <option value="AZ">Arizona (AZ)</option>
+          <option value="CA">California (CA)</option>
+          <option value="CO">Colorado (CO)</option>
+          <option value="CT">Connecticut (CT)</option>
+          <option value="DC">District of Columbia (DC)</option>
+          <option value="DE">Delaware (DE)</option>
+          <option value="FL">Florida (FL)</option>
+          <option value="GA">Georgia (GA)</option>
+          <option value="HI">Hawaii (HI)</option>
+          <option value="IA">Iowa (IA)</option>
+          <option value="ID">Idaho (ID)</option>
+          <option value="IL">Illinois (IL)</option>
+          <option value="IN">Indiana (IN)</option>
+          <option value="KS">Kansas (KS)</option>
+          <option value="KY">Kentucky (KY)</option>
+          <option value="LA">Louisiana (LA)</option>
+          <option value="MA">Massachusetts (MA)</option>
+          <option value="MD">Maryland (MD)</option>
+          <option value="ME">Maine (ME)</option>
+          <option value="MI">Michigan (MI)</option>
+          <option value="MN">Minnesota (MN)</option>
+          <option value="MO">Missouri (MO)</option>
+          <option value="MS">Mississippi (MS)</option>
+          <option value="MT">Montana (MT)</option>
+          <option value="NC">North Carolina (NC)</option>
+          <option value="ND">North Dakota (ND)</option>
+          <option value="NE">Nebraska (NE)</option>
+          <option value="NH">New Hampshire (NH)</option>
+          <option value="NJ">New Jersey (NJ)</option>
+          <option value="NM">New Mexico (NM)</option>
+          <option value="NV">Nevada (NV)</option>
+          <option value="NY">New York (NY)</option>
+          <option value="OH">Ohio (OH)</option>
+          <option value="OK">Oklahoma (OK)</option>
+          <option value="OR">Oregon (OR)</option>
+          <option value="PA">Pennsylvania (PA)</option>
+          <option value="RI">Rhode Island (RI)</option>
+          <option value="SC">South Carolina (SC)</option>
+          <option value="SD">South Dakota (SD)</option>
+          <option value="TN">Tennessee (TN)</option>
+          <option value="TX">Texas (TX)</option>
+          <option value="UT">Utah (UT)</option>
+          <option value="VA">Virginia (VA)</option>
+          <option value="VT">Vermont (VT)</option>
+          <option value="WA">Washington (WA)</option>
+          <option value="WI">Wisconsin (WI)</option>
+          <option value="WV">West Virginia (WV)</option>
+          <option value="WY">Wyoming (WY)</option>
+        </select>
+      </div>
+
+      <!-- Electricity sector -->
+      <div class="input-card">
+        <span class="ic-icon">⚡</span>
+        <div class="ic-label">Electricity Sector</div>
+        <select class="leqp-select" id="leqp-sector" onchange="leqpRecalc()">
+          <option value="C">Commercial (default)</option>
+          <option value="R">Residential</option>
+          <option value="I">Industrial</option>
+          <option value="A">All Sectors</option>
+        </select>
+      </div>
+
+      <!-- Hours per year -->
+      <div class="input-card">
+        <span class="ic-icon">⏱️</span>
+        <div class="ic-label">Hours Used Per Year</div>
+        <div class="ic-input-row">
+          <input class="ic-input" id="leqp-hours" type="number" min="0" step="1"
+                 placeholder="0" inputmode="numeric" aria-label="Hours per year"
+                 oninput="leqpRecalc()">
+          <span class="ic-unit">hr/yr</span>
+        </div>
+      </div>
+
+      <!-- Gas price -->
+      <div class="input-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-label">Cost of Gas</div>
+        <div class="ic-input-row">
+          <span class="ic-unit">$</span>
+          <input class="ic-input" id="leqp-gas" type="number" min="0" step="0.01"
+                 placeholder="0.00" inputmode="decimal" aria-label="Gas price per gallon"
+                 oninput="leqpRecalc()">
+          <span class="ic-unit">/ gal</span>
+        </div>
+      </div>
+
+    </div><!-- /input-grid -->
+
+    <!-- Results -->
+    <div class="results-card">
+      <div class="results-head">Cost &amp; CO₂ Emissions Comparison — Battery vs. Gas</div>
+
+      <!-- Battery vs Gas side-by-side -->
+      <div class="leqp-compare">
+        <div class="leqp-side">
+          <div class="leqp-side-hd battery">🔋 Battery-Electric</div>
+          <div class="leqp-pair">
+            <span class="leqp-pair-label">Annual Cost</span>
+            <span class="leqp-pair-val" id="leqp-r-batt-cost">—</span>
+          </div>
+          <div class="leqp-pair">
+            <span class="leqp-pair-label">CO₂ Emissions</span>
+            <span class="leqp-pair-val" id="leqp-r-batt-co2">—</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px" id="leqp-elec-note"></div>
+        </div>
+        <div class="leqp-side">
+          <div class="leqp-side-hd gas">⛽ Gas-Powered</div>
+          <div class="leqp-pair">
+            <span class="leqp-pair-label">Annual Cost</span>
+            <span class="leqp-pair-val" id="leqp-r-gas-cost">—</span>
+          </div>
+          <div class="leqp-pair">
+            <span class="leqp-pair-label">CO₂ Emissions</span>
+            <span class="leqp-pair-val" id="leqp-r-gas-co2">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings summary -->
+      <div class="leqp-savings">
+        <div class="leqp-sav-cell">
+          <div class="leqp-sav-label">Cost Change (switching to battery)</div>
+          <div class="leqp-sav-val neu" id="leqp-r-cost-sav">—</div>
+          <div id="leqp-r-cost-pct"></div>
+        </div>
+        <div class="leqp-sav-cell">
+          <div class="leqp-sav-label">CO₂ Change (switching to battery)</div>
+          <div class="leqp-sav-val neu" id="leqp-r-co2-sav">—</div>
+          <div id="leqp-r-co2-pct"></div>
+        </div>
+      </div>
+
+      <!-- Breakdown toggle -->
+      <button class="breakdown-toggle" onclick="leqpToggleBk()"
+              aria-expanded="false" id="leqp-bk-toggle">
+        <i class="breakdown-caret" id="leqp-bk-caret">▶</i>
+        View calculation breakdown
+      </button>
+      <div class="breakdown-body" id="leqp-bk-body">
+        <div style="overflow-x:auto; padding:14px 20px">
+          <table class="bk-table" id="leqp-bk-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Parameter</th>
+                <th style="text-align:left">Battery-Electric</th>
+                <th style="text-align:left">Gas-Powered</th>
+              </tr>
+            </thead>
+            <tbody id="leqp-bk-rows">
+              <tr class="empty-row">
+                <td colspan="3">Select equipment, state, and enter hours to see breakdown</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /results-card -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+        <button class="override-btn" id="leqp-override-btn" onclick="leqpOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <ul>
+        <li><b>Equipment specifications</b> (battery size, gas HP, gallons/hr): <a href="https://www.mass.gov/doc/commercial-battery-powered-electric-lawn-and-garden-equipment-calculator-8823" target="_blank" rel="noopener">Massachusetts Commercial Battery-Powered Electric Lawn and Garden Equipment Calculator</a> — Leading by Example, Operational Services Division, and Quiet Communities.</li>
+        <li><b>Battery cost formula:</b> Battery kWh × Batteries × Hours/yr × (1 + Charging Loss) × Electricity Rate (¢/kWh) ÷ 100. Charging efficiency loss default: 10%.</li>
+        <li><b>Battery CO₂ formula:</b> Battery kWh × Batteries × Hours/yr × (1 + Charging Loss) × State CO₂ Rate (lb/MWh) × 0.001. Uses state non-baseload grid emission rate.</li>
+        <li><b>Gas cost formula:</b> Gallons/hr × Hours/yr × Gas Price ($/gal).</li>
+        <li><b>Gas CO₂ formula:</b> Gas HP × Hours/yr × HP CO₂ Constant (g/hp·hr) ÷ 453.592 g/lb. HP CO₂ constants derived from equipment emission factors.</li>
+        <li><b>State electricity prices</b> (¢/kWh, Feb 2026 YTD by sector — Residential, Commercial, Industrial, All Sectors): <a href="https://www.eia.gov/electricity/sales_revenue_price/" target="_blank" rel="noopener">U.S. EIA Table 5.6.b</a>.</li>
+        <li><b>State grid CO₂ equivalent emission rates</b> (lb/MWh, non-baseload, 2023): <a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">EPA eGRID 2023 Detailed Data</a>.</li>
+        <li>Positive cost/CO₂ change = savings from switching to battery. Negative = increase. Results represent annual impacts for the hours entered.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-leqp -->
+
 <!-- ── Override Assumptions Modal ───────────────────────────────────────────── -->
 <div class="modal-overlay" id="override-modal"
      onclick="handleOverlayClick(event)" role="dialog"
@@ -1749,6 +2076,44 @@
   </div><!-- /modal -->
 </div><!-- /water-override-modal -->
 
+<!-- ── Landscaping Equipment Override Modal ───────────────────────────────────── -->
+<div class="modal-overlay" id="leqp-override-modal"
+     onclick="leqpHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="leqp-modal-title">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <h2 id="leqp-modal-title">Override Assumptions — Landscaping Equipment</h2>
+        <p>Values are pre-filled from your equipment and state selection. Override any to customize.</p>
+      </div>
+      <button class="modal-close" onclick="leqpCloseModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box">
+        <div><span class="eq-lhs">Battery Cost ($/yr)&nbsp;&nbsp;&nbsp;</span> = kWh × Batteries × Hrs/yr × (1 + Eff. Loss) × Elec. Rate (¢) ÷ 100</div>
+        <div><span class="eq-lhs">Battery CO₂ (lb/yr)&nbsp;&nbsp;&nbsp;</span> = kWh × Batteries × Hrs/yr × (1 + Eff. Loss) × CO₂ Rate (lb/MWh) × 0.001</div>
+        <div><span class="eq-lhs">Gas Cost ($/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Gal/Hr × Hrs/yr × Gas Price ($/gal)</div>
+        <div><span class="eq-lhs">Gas CO₂ (lb/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Gas HP × Hrs/yr × HP CO₂ Constant (g/hp·hr) ÷ 453.592</div>
+        <div class="eq-note">&nbsp;&nbsp;↳ Cost/CO₂ change = Gas value − Battery value (positive = savings)</div>
+      </div>
+
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Current Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="leqp-var-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="leqpResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="leqpApplyAndClose()">Apply &amp; Close</button>
+    </div>
+  </div><!-- /modal -->
+</div><!-- /leqp-override-modal -->
+
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
@@ -1948,7 +2313,7 @@ function resetOverrides() {
 
 // Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); waterCloseModal(); }
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); waterCloseModal(); leqpCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -1961,7 +2326,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape', nutrients: 'tab-nutrients' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape', nutrients: 'tab-nutrients', leqp: 'tab-leqp' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -2800,6 +3165,296 @@ function waterResetOverrides() {
   });
   document.getElementById('water-override-btn').classList.remove('active');
   waterRecalc();
+}
+
+// ── Landscaping Equipment Calculator ─────────────────────────────────────────
+// Source: Existing Calculator Summary_05072026.xlsx — "Landscaping_Equipments" sheet
+// Equipment specs from Massachusetts Commercial Battery-Powered Electric Lawn Calculator
+// Electricity prices: U.S. EIA Table 5.6.b (Feb 2026 YTD, cents/kWh)
+// Grid CO₂ rates: EPA eGRID 2023 (non-baseload, lb/MWh)
+
+const LEQP_EQUIP = {
+  'Riding Zero-Turn Mower 42"':   { battKwh:  3.36, numBatt: 2, effLoss: 0.1, gasHp: 23,   galPerHr: 2,          hpCo2: 1053.42094  },
+  'Riding Zero-Turn Mower 48"':   { battKwh: 24,    numBatt: 1, effLoss: 0.1, gasHp: 23.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Riding Zero-Turn Mower 52"':   { battKwh: 24,    numBatt: 1, effLoss: 0.1, gasHp: 25.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Riding Zero-Turn Mower 60"':   { battKwh: 16,    numBatt: 4, effLoss: 0.1, gasHp: 25.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Riding Zero-Turn Mower 72-74"':{ battKwh: 22,    numBatt: 1, effLoss: 0.1, gasHp: 26.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Stand-on Mower 48"':           { battKwh: 16,    numBatt: 4, effLoss: 0.1, gasHp: 22,   galPerHr: 2,          hpCo2: 1053.42094  },
+  'Stand-on Mower 52"':           { battKwh: 16,    numBatt: 4, effLoss: 0.1, gasHp: 23.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Stand-on Mower 60"':           { battKwh: 24,    numBatt: 1, effLoss: 0.1, gasHp: 26.5, galPerHr: 2,          hpCo2: 1053.42094  },
+  'Push-Mower 30-32"':            { battKwh:  1.344,numBatt: 3, effLoss: 0.1, gasHp: 14.5, galPerHr: 0.75,       hpCo2: 1117.972504 },
+  'Handheld Blower 350-400 cfm':  { battKwh:  0.144,numBatt: 1, effLoss: 0.1, gasHp:  1.07,galPerHr: 0.43,       hpCo2: 1103.71     },
+  'Backpack Blower 600-650 cfm':  { battKwh:  0.42, numBatt: 1, effLoss: 0.1, gasHp:  3.81,galPerHr: 0.43,       hpCo2:  726.710072 },
+  'Backpack Blower 650-700 cfm':  { battKwh:  0.82, numBatt: 2, effLoss: 0.1, gasHp:  3.8, galPerHr: 0.43,       hpCo2:  726.710072 },
+  'Backpack Blower 750-800 cfm':  { battKwh:  1.12, numBatt: 2, effLoss: 0.1, gasHp:  4,   galPerHr: 0.43,       hpCo2:  726.710072 },
+  'String Trimmer 16.5"':         { battKwh:  0.3384,numBatt:1, effLoss: 0.1, gasHp:  1.9, galPerHr: 0.66043013, hpCo2: 1103.71     },
+  'Hedge Trimmer 24"':            { battKwh:  0.2591,numBatt:1, effLoss: 0.1, gasHp:  1.2, galPerHr: 0.1328125,  hpCo2: 1103.71     },
+  'Pole Saw 10"':                 { battKwh:  0.2592,numBatt:1, effLoss: 0.1, gasHp:  1.07,galPerHr: 0.15625,    hpCo2: 1103.705548 },
+  'Chainsaw 12"':                 { battKwh:  0.28,  numBatt:1, effLoss: 0.1, gasHp:  1.21,galPerHr: 0.15850323, hpCo2: 1103.71     },
+  'Chainsaw 14"':                 { battKwh:  0.216, numBatt:1, effLoss: 0.1, gasHp:  2.4, galPerHr: 0.15850323, hpCo2: 1103.71     },
+  'Chainsaw 16"':                 { battKwh:  0.328, numBatt:1, effLoss: 0.1, gasHp:  2.4, galPerHr: 0.22454624, hpCo2: 1103.71     },
+  'Chainsaw 18"':                 { battKwh:  0.28,  numBatt:1, effLoss: 0.1, gasHp:  4.7, galPerHr: 0.29058926, hpCo2:  726.71     },
+  'Chainsaw 20"':                 { battKwh:  0.328, numBatt:1, effLoss: 0.1, gasHp:  5.5, galPerHr: 0.29058926, hpCo2:  726.71     },
+};
+
+// State data: co2 = eGRID 2023 non-baseload CO₂ equivalent (lb/MWh)
+// elec = EIA Table 5.6.b electricity prices (¢/kWh, Feb 2026 YTD)
+//        R=Residential, C=Commercial, I=Industrial, A=All Sectors
+const LEQP_STATES = {
+  AK:{ name:'Alaska',               co2:1153.507, elec:{R:25.64,C:22.07,I:20.63,A:23.12} },
+  AL:{ name:'Alabama',              co2:1246.882, elec:{R:16.11,C:15.05,I: 7.90,A:12.94} },
+  AR:{ name:'Arkansas',             co2:1657.957, elec:{R:12.54,C:11.37,I: 6.77,A:10.01} },
+  AZ:{ name:'Arizona',              co2:1207.674, elec:{R:15.80,C:11.59,I: 7.17,A:12.24} },
+  CA:{ name:'California',           co2: 886.040, elec:{R:31.48,C:23.93,I:19.01,A:26.02} },
+  CO:{ name:'Colorado',             co2:1628.885, elec:{R:16.60,C:12.86,I: 9.37,A:13.25} },
+  CT:{ name:'Connecticut',          co2: 850.514, elec:{R:29.48,C:23.85,I:21.32,A:26.62} },
+  DC:{ name:'District of Columbia', co2: 192.684, elec:{R:23.84,C:23.83,I:24.60,A:23.63} },
+  DE:{ name:'Delaware',             co2: 837.165, elec:{R:16.39,C:14.12,I:13.28,A:15.20} },
+  FL:{ name:'Florida',              co2: 991.778, elec:{R:15.86,C:12.58,I: 9.44,A:14.17} },
+  GA:{ name:'Georgia',              co2:1667.755, elec:{R:14.31,C:12.11,I: 8.10,A:12.28} },
+  HI:{ name:'Hawaii',               co2:1721.987, elec:{R:41.17,C:37.95,I:32.98,A:37.05} },
+  IA:{ name:'Iowa',                 co2:1694.430, elec:{R:12.79,C:10.62,I: 6.86,A: 9.41} },
+  ID:{ name:'Idaho',                co2: 942.842, elec:{R:12.32,C: 9.22,I: 6.98,A: 9.97} },
+  IL:{ name:'Illinois',             co2:1411.573, elec:{R:17.05,C:12.78,I: 9.97,A:13.50} },
+  IN:{ name:'Indiana',              co2:2034.814, elec:{R:16.13,C:14.11,I: 9.51,A:13.16} },
+  KS:{ name:'Kansas',               co2:2050.660, elec:{R:14.64,C:11.52,I: 8.52,A:11.77} },
+  KY:{ name:'Kentucky',             co2:1939.765, elec:{R:13.86,C:12.85,I: 8.06,A:11.69} },
+  LA:{ name:'Louisiana',            co2:1018.054, elec:{R:12.66,C:11.84,I: 6.26,A: 9.61} },
+  MA:{ name:'Massachusetts',        co2: 937.805, elec:{R:30.82,C:25.45,I:21.58,A:27.34} },
+  MD:{ name:'Maryland',             co2:1221.619, elec:{R:20.36,C:18.15,I:18.50,A:19.34} },
+  ME:{ name:'Maine',                co2: 747.218, elec:{R:31.46,C:23.18,I:18.48,A:26.05} },
+  MI:{ name:'Michigan',             co2:1469.210, elec:{R:19.74,C:14.76,I: 9.36,A:15.17} },
+  MN:{ name:'Minnesota',            co2:1531.409, elec:{R:15.17,C:11.72,I: 9.31,A:12.37} },
+  MO:{ name:'Missouri',             co2:1868.369, elec:{R:11.96,C: 9.64,I: 8.09,A:10.58} },
+  MS:{ name:'Mississippi',          co2:1044.653, elec:{R:14.48,C:14.41,I: 7.56,A:12.16} },
+  MT:{ name:'Montana',              co2:1833.476, elec:{R:13.08,C:12.17,I: 7.15,A:11.26} },
+  NC:{ name:'North Carolina',       co2:1283.537, elec:{R:14.13,C:10.68,I: 8.28,A:12.11} },
+  ND:{ name:'North Dakota',         co2:2051.015, elec:{R:11.24,C: 7.78,I: 8.11,A: 8.66} },
+  NE:{ name:'Nebraska',             co2:2054.567, elec:{R:11.78,C: 9.44,I: 7.79,A: 9.67} },
+  NH:{ name:'New Hampshire',        co2: 939.871, elec:{R:26.42,C:22.53,I:20.06,A:24.13} },
+  NJ:{ name:'New Jersey',           co2: 897.241, elec:{R:23.12,C:17.36,I:15.90,A:19.64} },
+  NM:{ name:'New Mexico',           co2:1495.533, elec:{R:14.87,C:10.61,I: 5.69,A: 9.10} },
+  NV:{ name:'Nevada',               co2:1038.894, elec:{R:14.16,C: 9.03,I: 7.60,A:10.15} },
+  NY:{ name:'New York',             co2:1024.911, elec:{R:29.17,C:22.88,I:11.94,A:24.26} },
+  OH:{ name:'Ohio',                 co2:1551.642, elec:{R:17.55,C:13.67,I:10.91,A:14.36} },
+  OK:{ name:'Oklahoma',             co2:1285.612, elec:{R:12.74,C: 9.35,I: 6.71,A: 9.74} },
+  OR:{ name:'Oregon',               co2: 934.474, elec:{R:14.65,C:10.47,I: 7.98,A:11.39} },
+  PA:{ name:'Pennsylvania',         co2:1344.510, elec:{R:20.24,C:14.52,I:12.56,A:16.56} },
+  RI:{ name:'Rhode Island',         co2: 943.292, elec:{R:29.81,C:24.47,I:23.41,A:26.75} },
+  SC:{ name:'South Carolina',       co2:1585.256, elec:{R:15.76,C:12.59,I: 8.83,A:12.99} },
+  SD:{ name:'South Dakota',         co2:1529.074, elec:{R:13.43,C:11.50,I: 9.25,A:11.85} },
+  TN:{ name:'Tennessee',            co2:1743.734, elec:{R:12.95,C:13.09,I: 6.65,A:11.64} },
+  TX:{ name:'Texas',                co2:1285.699, elec:{R:15.56,C: 8.76,I: 7.22,A:10.48} },
+  UT:{ name:'Utah',                 co2:1946.888, elec:{R:13.09,C: 9.82,I: 8.39,A:10.52} },
+  VA:{ name:'Virginia',             co2: 960.788, elec:{R:15.91,C:12.18,I:10.30,A:13.50} },
+  VT:{ name:'Vermont',              co2: 598.858, elec:{R:23.28,C:20.70,I:13.08,A:20.27} },
+  WA:{ name:'Washington',           co2:1052.912, elec:{R:13.95,C:11.92,I: 7.11,A:12.05} },
+  WI:{ name:'Wisconsin',            co2:1824.162, elec:{R:18.44,C:13.51,I: 9.30,A:13.88} },
+  WV:{ name:'West Virginia',        co2:2165.219, elec:{R:14.60,C:11.67,I: 8.37,A:11.71} },
+  WY:{ name:'Wyoming',              co2:2373.731, elec:{R:12.94,C: 9.71,I: 8.83,A: 9.95} },
+};
+
+const LEQP_OV = {};
+
+function leqpGetDefault(key) {
+  const eName  = document.getElementById('leqp-equip').value;
+  const sAbbr  = document.getElementById('leqp-state').value;
+  const sector = document.getElementById('leqp-sector').value;
+  const eq     = LEQP_EQUIP[eName] || {};
+  const st     = LEQP_STATES[sAbbr] || {};
+  switch (key) {
+    case 'battKwh':  return eq.battKwh  ?? 0;
+    case 'numBatt':  return eq.numBatt  ?? 1;
+    case 'effLoss':  return eq.effLoss  ?? 0.1;
+    case 'gasHp':    return eq.gasHp    ?? 0;
+    case 'galPerHr': return eq.galPerHr ?? 0;
+    case 'hpCo2':    return eq.hpCo2    ?? 0;
+    case 'elecRate': return (st.elec || {})[sector] ?? 0;
+    case 'co2Rate':  return st.co2 ?? 0;
+    default:         return 0;
+  }
+}
+
+function leqpVal(key) {
+  return (key in LEQP_OV) ? LEQP_OV[key] : leqpGetDefault(key);
+}
+
+function leqpRecalc() {
+  const eName    = document.getElementById('leqp-equip').value;
+  const sAbbr    = document.getElementById('leqp-state').value;
+  const sector   = document.getElementById('leqp-sector').value;
+  const hours    = parseFloat(document.getElementById('leqp-hours').value)  || 0;
+  const gasPrice = parseFloat(document.getElementById('leqp-gas').value)    || 0;
+
+  if (!eName || !sAbbr || hours <= 0 || gasPrice <= 0) {
+    leqpClearResults();
+    return;
+  }
+
+  const battKwh  = leqpVal('battKwh');
+  const numBatt  = leqpVal('numBatt');
+  const effLoss  = leqpVal('effLoss');
+  const gasHp    = leqpVal('gasHp');
+  const galPerHr = leqpVal('galPerHr');
+  const hpCo2    = leqpVal('hpCo2');
+  const elecRate = leqpVal('elecRate');  // ¢/kWh
+  const co2Rate  = leqpVal('co2Rate');   // lb/MWh
+
+  const totalKwh   = battKwh * numBatt;
+  const energyUsed = totalKwh * hours * (1 + effLoss);  // kWh/yr
+
+  const costBatt = energyUsed * (elecRate / 100);
+  const co2Batt  = energyUsed * co2Rate * 0.001;         // lb/yr (kWh × lb/MWh × MWh/kWh)
+  const costGas  = galPerHr * hours * gasPrice;
+  const co2Gas   = gasHp * hours * hpCo2 / 453.592;      // lb/yr (g→lb)
+
+  const costSav  = costGas - costBatt;
+  const co2Sav   = co2Gas  - co2Batt;
+  const costPct  = costGas  > 0 ? (costSav  / costGas)  * 100 : 0;
+  const co2Pct   = co2Gas   > 0 ? (co2Sav   / co2Gas)   * 100 : 0;
+
+  const sectorLabel = { R:'Residential', C:'Commercial', I:'Industrial', A:'All Sectors' }[sector] || sector;
+
+  // Battery side
+  document.getElementById('leqp-r-batt-cost').textContent = fmtCost(costBatt) + '/yr';
+  document.getElementById('leqp-r-batt-co2').textContent  = fmt(co2Batt) + ' lb CO₂e/yr';
+  document.getElementById('leqp-elec-note').textContent   =
+    `${elecRate.toFixed(2)} ¢/kWh (${sectorLabel}, ${LEQP_STATES[sAbbr]?.name ?? sAbbr})`;
+
+  // Gas side
+  document.getElementById('leqp-r-gas-cost').textContent  = fmtCost(costGas) + '/yr';
+  document.getElementById('leqp-r-gas-co2').textContent   = fmt(co2Gas)  + ' lb CO₂e/yr';
+
+  // Savings
+  const savCostEl   = document.getElementById('leqp-r-cost-sav');
+  const savCo2El    = document.getElementById('leqp-r-co2-sav');
+  const pctCostEl   = document.getElementById('leqp-r-cost-pct');
+  const pctCo2El    = document.getElementById('leqp-r-co2-pct');
+
+  const costCls = costSav > 0 ? 'pos' : costSav < 0 ? 'neg' : 'neu';
+  const co2Cls  = co2Sav  > 0 ? 'pos' : co2Sav  < 0 ? 'neg' : 'neu';
+
+  savCostEl.className = `leqp-sav-val ${costCls}`;
+  savCostEl.textContent = (costSav >= 0 ? '' : '−') + fmtCost(Math.abs(costSav)) + '/yr';
+  pctCostEl.innerHTML = `<span class="leqp-pct ${costCls}">${costSav >= 0 ? '▼' : '▲'} ${Math.abs(costPct).toFixed(1)}% ${costSav >= 0 ? 'cost reduction' : 'cost increase'}</span>`;
+
+  savCo2El.className = `leqp-sav-val ${co2Cls}`;
+  savCo2El.textContent = (co2Sav >= 0 ? '' : '−') + fmt(Math.abs(co2Sav)) + ' lb/yr';
+  pctCo2El.innerHTML = `<span class="leqp-pct ${co2Cls}">${co2Sav >= 0 ? '▼' : '▲'} ${Math.abs(co2Pct).toFixed(1)}% ${co2Sav >= 0 ? 'CO₂ reduction' : 'CO₂ increase'}</span>`;
+
+  // Breakdown table
+  const rows = [
+    ['Battery capacity per unit (kWh)', battKwh.toFixed(4),    '—'],
+    ['Number of batteries',             numBatt,                '—'],
+    ['Total battery kWh',               fmt(totalKwh),          '—'],
+    ['Charging efficiency loss',        (effLoss * 100).toFixed(0) + '%', '—'],
+    ['Total energy consumed (kWh/yr)',  fmt(energyUsed),        galPerHr.toFixed(4) + ' gal × ' + hours + ' hr = ' + fmt(galPerHr * hours) + ' gal'],
+    ['Electricity rate (¢/kWh)',        elecRate.toFixed(2),    '$' + gasPrice.toFixed(2) + '/gal'],
+    ['Grid CO₂ rate (lb/MWh)',          co2Rate.toFixed(3),     hpCo2.toFixed(2) + ' g/hp·hr ÷ 453.592'],
+    ['Gas HP',                          '—',                    gasHp.toFixed(2)],
+    ['Annual Cost',                     fmtCost(costBatt),      fmtCost(costGas)],
+    ['Annual CO₂ (lb)',                 fmt(co2Batt),           fmt(co2Gas)],
+  ];
+
+  document.getElementById('leqp-bk-rows').innerHTML = rows.map(([label, batt, gas]) =>
+    `<tr><td>${label}</td><td>${batt}</td><td>${gas}</td></tr>`
+  ).join('');
+}
+
+function leqpClearResults() {
+  ['leqp-r-batt-cost','leqp-r-batt-co2','leqp-r-gas-cost','leqp-r-gas-co2'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  ['leqp-r-cost-sav','leqp-r-co2-sav'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '—';
+    el.className = 'leqp-sav-val neu';
+  });
+  document.getElementById('leqp-r-cost-pct').innerHTML = '';
+  document.getElementById('leqp-r-co2-pct').innerHTML  = '';
+  document.getElementById('leqp-elec-note').textContent = '';
+  document.getElementById('leqp-bk-rows').innerHTML =
+    '<tr class="empty-row"><td colspan="3">Select equipment, state, and enter hours to see breakdown</td></tr>';
+}
+
+function leqpToggleBk() {
+  const body  = document.getElementById('leqp-bk-body');
+  const caret = document.getElementById('leqp-bk-caret');
+  const btn   = document.getElementById('leqp-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// ── Landscaping Equipment override modal ──────────────────────────────────────
+const LEQP_VAR_DEFS = [
+  { group: 'Equipment Specifications (from equipment selection)' },
+  { key: 'battKwh',  label: 'Battery size per unit',              unit: 'kWh' },
+  { key: 'numBatt',  label: 'Number of batteries',                unit: 'count' },
+  { key: 'effLoss',  label: 'Charging efficiency loss',           unit: 'fraction (0.10 = 10%)' },
+  { key: 'gasHp',    label: 'Gas engine horsepower',              unit: 'hp' },
+  { key: 'galPerHr', label: 'Gallons of gas per hour',            unit: 'gal/hr' },
+  { key: 'hpCo2',    label: 'HP CO₂ constant (gas emissions)',    unit: 'g/hp·hr' },
+  { group: 'Electricity &amp; Grid Data (from state selection)' },
+  { key: 'elecRate', label: 'Electricity rate',                   unit: '¢/kWh' },
+  { key: 'co2Rate',  label: 'Grid CO₂ equivalent emission rate',  unit: 'lb/MWh' },
+];
+
+function leqpBuildModal() {
+  let html = '';
+  LEQP_VAR_DEFS.forEach(v => {
+    if (v.group) {
+      html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`;
+      return;
+    }
+    const def     = leqpGetDefault(v.key);
+    const cur     = LEQP_OV[v.key] ?? '';
+    const changed = v.key in LEQP_OV ? ' changed' : '';
+    const dispDef = typeof def === 'number' ? (def % 1 === 0 ? def : parseFloat(def.toPrecision(6))) : def;
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${dispDef}</td>
+      <td><input class="var-input${changed}" id="leqp-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${dispDef}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('leqp-var-tbody').innerHTML = html;
+}
+
+function leqpOpenModal() {
+  leqpBuildModal();
+  document.getElementById('leqp-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function leqpCloseModal() {
+  document.getElementById('leqp-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function leqpHandleOverlayClick(e) { if (e.target === e.currentTarget) leqpCloseModal(); }
+
+function leqpApplyAndClose() {
+  LEQP_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`leqp-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num >= 0) LEQP_OV[v.key] = num;
+    else delete LEQP_OV[v.key];
+  });
+  document.getElementById('leqp-override-btn').classList.toggle('active', Object.keys(LEQP_OV).length > 0);
+  leqpRecalc();
+  leqpCloseModal();
+}
+
+function leqpResetOverrides() {
+  Object.keys(LEQP_OV).forEach(k => delete LEQP_OV[k]);
+  LEQP_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`leqp-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('leqp-override-btn').classList.remove('active');
+  leqpRecalc();
 }
 </script>
 </body>
