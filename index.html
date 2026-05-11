@@ -786,6 +786,105 @@
       .water-zone-row > div:not(:first-child) { padding-left: 12px; }
     }
 
+    /* ── Sustainable Planting Calculator ─────────────── */
+    .splant-peak-bar {
+      padding: 9px 20px;
+      font-size: 12.5px;
+      color: var(--muted);
+      background: #f7faf8;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .splant-peak-bar strong { color: var(--green-dark); }
+    .splant-type-info {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: #f0f8f4;
+      border: 1px solid #b7d9c6;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .splant-type-info b { color: var(--text); }
+    .splant-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 540px) { .splant-compare { grid-template-columns: 1fr; } }
+    .splant-side {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .splant-side-hd {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 10px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+    }
+    .splant-side-hd.designed { color: #2563eb; }
+    .splant-side-hd.baseline { color: #b45309; }
+    .splant-pair {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      font-size: 12.5px;
+      border-bottom: 1px solid #f0f4f2;
+    }
+    .splant-pair:last-child { border-bottom: none; }
+    .splant-pair-label { color: var(--muted); }
+    .splant-pair-val   { font-weight: 700; color: var(--text); }
+    .splant-red {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .splant-red-cell { border-radius: 10px; padding: 14px 16px; background: #d4efdf; }
+    .splant-red-cell.neg { background: #fde8e8; }
+    .splant-red-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #1e7a45; margin-bottom: 4px;
+    }
+    .splant-red-label.neg { color: #c0392b; }
+    .splant-red-val  { font-size: 22px; font-weight: 700; color: #1e7a45; }
+    .splant-red-val.neg { color: #c0392b; }
+    .splant-red-unit { display: block; font-size: 11px; color: #1e7a45; margin-top: 2px; }
+    .splant-red-unit.neg { color: #c0392b; }
+    .splant-red-pct {
+      display: inline-block; margin-top: 4px; padding: 1px 8px;
+      background: rgba(0,0,0,0.08); border-radius: 8px;
+      font-size: 11.5px; font-weight: 700; color: #1e7a45;
+    }
+    .splant-red-pct.neg { color: #c0392b; }
+    .splant-p4-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 560px) { .splant-p4-metrics { grid-template-columns: 1fr; } }
+    .splant-p4-metric {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .splant-p4-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+    .splant-p4-val   { font-size: 20px; font-weight: 700; color: var(--text); }
+    .splant-p4-val.pos { color: #2d9d5a; }
+    .splant-p4-unit  { font-size: 11px; color: var(--muted); }
+
     /* ── Responsive tweaks ────────────────────────────── */
     @media (max-width: 520px) {
       .site-header, .panel-inner { padding-left: 16px; padding-right: 16px; }
@@ -810,6 +909,7 @@
   <button class="tab-btn"        role="tab" onclick="switchTab('landscape',this)">Landscaping Practices</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('nutrients',this)">Landscaping Nutrients</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('leqp',this)">Landscaping Equipment</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('splant',this)">Sustainable Planting</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -2114,6 +2214,343 @@
   </div><!-- /modal -->
 </div><!-- /leqp-override-modal -->
 
+<!-- ════════════════════════════════════════════════════════
+     TAB 7 · SUSTAINABLE PLANTING
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-splant" role="tabpanel">
+  <div class="panel-inner">
+
+    <p class="panel-title">Sustainable Planting Impact Calculator</p>
+    <p class="panel-desc">
+      Estimate supplemental irrigation, nitrogen fertilizer, and plastic container reductions
+      from switching away from turfgrass to a more sustainable landscape category.
+      <strong>Turfgrass is the baseline</strong> (Plant Factor&nbsp;=&nbsp;0.70, N&nbsp;Factor&nbsp;=&nbsp;4.0&nbsp;lbs&nbsp;N/1,000&nbsp;sf/yr).
+      Climate data (ETo and rainfall) is pulled automatically from your zip code.
+    </p>
+
+    <!-- ── Part 1: Inputs ── -->
+    <p class="section-label">Part 1 — Project Information</p>
+    <div class="card">
+
+      <div class="row2" style="margin-bottom:16px">
+        <div>
+          <label class="field-label" for="splant-zip">1. Zip Code</label>
+          <div class="water-zip-block">
+            <input class="num-input" id="splant-zip" type="text" maxlength="5"
+                   placeholder="e.g. 19103" aria-label="Zip code" oninput="splantZipInput()">
+            <span class="water-zip-status" id="splant-zip-status"></span>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="splant-area">2. Project Site Area (sq ft)</label>
+          <input class="num-input" id="splant-area" type="number" min="0" step="1"
+                 placeholder="e.g. 5000" oninput="splantRecalc()">
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <label class="field-label" for="splant-type">3. Project Landscape Classification</label>
+        <select class="leqp-select" id="splant-type" onchange="splantRecalc()">
+          <option value="">— Select plant category —</option>
+          <option value="Natives">Natives — Regionally native species</option>
+          <option value="Drought Tolerant">Drought Tolerant — Low-water-use species</option>
+          <option value="Adaptive/Naturalized">Adaptive/Naturalized — Non-native, well adapted to site conditions</option>
+          <option value="Ornamental Flowering Plants">Ornamental Flowering Plants — Higher-maintenance perennials &amp; shrubs</option>
+          <option value="Annuals & Seasonal Color">Annuals &amp; Seasonal Color — Input-intensive seasonal plantings</option>
+          <option value="Wildflower and Meadow Mixes">Wildflower and Meadow Mixes — Grasses, forbs, wildflowers</option>
+        </select>
+        <div class="splant-type-info" id="splant-type-info" style="display:none"></div>
+      </div>
+
+      <div class="row2" style="margin-bottom:16px">
+        <div>
+          <label class="field-label" for="splant-soil">4. USDA NRCS Hydrologic Soil Group</label>
+          <select class="leqp-select" id="splant-soil" onchange="splantRecalc()">
+            <option value="B">B — Moderate infiltration rate</option>
+            <option value="A">A — High infiltration rate (sandy / well-drained)</option>
+            <option value="C">C — Slow infiltration rate (clay loam)</option>
+            <option value="D">D — Very slow infiltration (heavy clay / high water table)</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="splant-mulch">5. Site Will Be Mulched (2-inch depth)?</label>
+          <select class="leqp-select" id="splant-mulch" onchange="splantRecalc()">
+            <option value="no">No</option>
+            <option value="yes">Yes — apply 17% soil moisture retention factor (ISA literature review)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label" for="splant-fert">5. Will Synthetic Fertilizer Be Applied to Maintain This Planting?</label>
+        <select class="leqp-select" id="splant-fert" style="max-width:520px" onchange="splantRecalc()">
+          <option value="yes">Yes — compare fertilizer needs to turf baseline</option>
+          <option value="no">No — 100% supplemental fertilizer reduction (designed N = 0)</option>
+        </select>
+      </div>
+
+    </div><!-- /card -->
+
+    <!-- Peak watering month bar -->
+    <div class="splant-peak-bar" id="splant-peak-bar" style="display:none">
+      Peak Watering Month (highest ETo): <strong id="splant-peak-month">—</strong>
+      &emsp;|&emsp; ETo: <strong id="splant-peak-eto">—</strong>&nbsp;in/mo
+      &emsp;|&emsp; P50 Rainfall: <strong id="splant-peak-rf">—</strong>&nbsp;in/mo
+    </div>
+
+    <!-- ══ Results (hidden until required inputs filled) ══ -->
+    <div id="splant-results" style="display:none">
+
+      <!-- ── Part 2: Irrigation ── -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px">
+        <p class="section-label" style="margin:0">Part 2 — Supplemental Irrigation Reduction</p>
+        <button class="override-btn" id="splant-override-btn" onclick="splantOpenModal()">
+          <span class="override-dot"></span>
+          ✎ Override Assumptions
+        </button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px">
+        Water Requirement (gal/peak mo) = Area&nbsp;×&nbsp;max(0,&nbsp;[ETo&nbsp;×&nbsp;PF]&nbsp;−&nbsp;P50)&nbsp;×&nbsp;0.623
+        <span id="splant-mulch-note" style="display:none">&nbsp;×&nbsp;0.83&nbsp;(mulch factor)</span>
+      </p>
+
+      <div class="splant-compare">
+        <div class="splant-side">
+          <div class="splant-side-hd designed">Your Designed Landscape</div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Plant Factor (PF)</span>
+            <span class="splant-pair-val" id="splant-d-pf">—</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Water Requirement</span>
+            <span class="splant-pair-val" id="splant-d-lwr">—</span>
+          </div>
+        </div>
+        <div class="splant-side">
+          <div class="splant-side-hd baseline">Turf Baseline (PF = 0.70)</div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Plant Factor (PF)</span>
+            <span class="splant-pair-val">0.70</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Water Requirement</span>
+            <span class="splant-pair-val" id="splant-t-lwr">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="splant-red">
+        <div class="splant-red-cell" id="splant-irr-cell">
+          <div class="splant-red-label" id="splant-irr-label">IRRIGATION REDUCTION</div>
+          <div class="splant-red-val"   id="splant-irr-val">—</div>
+          <small class="splant-red-unit" id="splant-irr-unit">gal / peak watering month</small>
+          <div><span class="splant-red-pct" id="splant-irr-pct"></span></div>
+        </div>
+      </div>
+
+      <!-- ── Part 3: Fertilizer ── -->
+      <p class="section-label">Part 3 — Supplemental Fertilizer Reduction</p>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px">
+        Annual N (lbs N/yr) = (Area&nbsp;÷&nbsp;1,000)&nbsp;×&nbsp;N&nbsp;Factor &ensp;|&ensp;
+        N Runoff (lbs/yr) = Annual N&nbsp;×&nbsp;R (soil runoff fraction)
+      </p>
+
+      <div class="splant-compare">
+        <div class="splant-side">
+          <div class="splant-side-hd designed">Your Designed Landscape</div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">N Factor (lbs N/1,000 sf/yr)</span>
+            <span class="splant-pair-val" id="splant-d-nf">—</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Annual N Applied (lbs N/yr)</span>
+            <span class="splant-pair-val" id="splant-d-n">—</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">N to Surface Runoff (lbs N/yr)</span>
+            <span class="splant-pair-val" id="splant-d-nr">—</span>
+          </div>
+        </div>
+        <div class="splant-side">
+          <div class="splant-side-hd baseline">Turf Baseline (NF = 4.0)</div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">N Factor (lbs N/1,000 sf/yr)</span>
+            <span class="splant-pair-val">4.0</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">Annual N Applied (lbs N/yr)</span>
+            <span class="splant-pair-val" id="splant-t-n">—</span>
+          </div>
+          <div class="splant-pair">
+            <span class="splant-pair-label">N to Surface Runoff (lbs N/yr)</span>
+            <span class="splant-pair-val" id="splant-t-nr">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="splant-red">
+        <div class="splant-red-cell" id="splant-n-cell">
+          <div class="splant-red-label" id="splant-n-label">NITROGEN APPLIED REDUCTION</div>
+          <div class="splant-red-val"   id="splant-n-val">—</div>
+          <small class="splant-red-unit" id="splant-n-unit">lbs N / yr</small>
+          <div><span class="splant-red-pct" id="splant-n-pct"></span></div>
+        </div>
+        <div class="splant-red-cell" id="splant-nr-cell">
+          <div class="splant-red-label" id="splant-nr-label">N RUNOFF REDUCTION</div>
+          <div class="splant-red-val"   id="splant-nr-val">—</div>
+          <small class="splant-red-unit" id="splant-nr-unit">lbs N / yr avoided in surface runoff</small>
+          <div><span class="splant-red-pct" id="splant-nr-pct"></span></div>
+        </div>
+      </div>
+
+      <!-- ── Part 4 (Bonus): Plastic ── -->
+      <p class="section-label">(Bonus) Part 4 — Plastic Container Reduction</p>
+      <p style="font-size:12.5px; color:var(--muted); margin-bottom:14px">
+        Estimate plastic avoided by sourcing plants as bare root instead of plastic containers.
+        Enter plant spacing and the percentage you plan to source bare root.
+        <em>This is a planning-level estimate; actual plastic weights may vary by plant size and species.</em>
+      </p>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="row2" style="margin-bottom:12px">
+          <div>
+            <label class="field-label" for="splant-spacing">Average Plant Spacing (inches on center)</label>
+            <input class="num-input" id="splant-spacing" type="number" min="1" max="360" step="1"
+                   placeholder="e.g. 18" oninput="splantCalcPlastic()">
+          </div>
+          <div>
+            <label class="field-label" for="splant-ptype">Plant Form / Container Type</label>
+            <select class="leqp-select" id="splant-ptype" onchange="splantCalcPlastic()">
+              <option value="container">Individual Container Plants (avg 0.38 lbs plastic / plant)</option>
+              <option value="seedlings">Seedlings / Plugs — 72-cell tray (0.48 lbs plastic / tray)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="splant-bareroot">% of Plants Sourced as Bare Root</label>
+          <input class="num-input" id="splant-bareroot" type="number" min="0" max="100" step="1"
+                 placeholder="e.g. 50" oninput="splantCalcPlastic()" style="max-width:160px">
+          <span style="font-size:12px; color:var(--muted); margin-left:8px">% (0–100)</span>
+        </div>
+      </div>
+
+      <div class="splant-p4-metrics">
+        <div class="splant-p4-metric">
+          <div class="splant-p4-label">Estimated # Plants</div>
+          <div class="splant-p4-val" id="splant-p4-nplants">—</div>
+          <div class="splant-p4-unit">triangular grid spacing</div>
+        </div>
+        <div class="splant-p4-metric">
+          <div class="splant-p4-label">Total Plastic (all containers)</div>
+          <div class="splant-p4-val" id="splant-p4-plastic">—</div>
+          <div class="splant-p4-unit">lbs plastic</div>
+        </div>
+        <div class="splant-p4-metric">
+          <div class="splant-p4-label">Plastic Avoided (bare root)</div>
+          <div class="splant-p4-val pos" id="splant-p4-avoided">—</div>
+          <div class="splant-p4-unit">lbs plastic avoided</div>
+        </div>
+      </div>
+
+      <!-- Breakdown toggle -->
+      <button class="breakdown-toggle" onclick="splantToggleBk()"
+              aria-expanded="false" id="splant-bk-toggle">
+        <i class="breakdown-caret" id="splant-bk-caret">▶</i>
+        View monthly climate data &amp; calculation breakdown
+      </button>
+      <div class="breakdown-body" id="splant-bk-body">
+        <div style="overflow-x:auto; padding:14px 20px">
+          <p style="font-size:12px; color:var(--muted); margin-bottom:10px">
+            Monthly climate data for entered zip code (ETo and P50 Rainfall, inches/month).
+            Peak watering month highlighted = highest ETo value.
+          </p>
+          <table class="bk-table" id="splant-climate-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>ETo (in/mo)</th>
+                <th>P50 Rainfall (in/mo)</th>
+              </tr>
+            </thead>
+            <tbody id="splant-climate-rows">
+              <tr class="empty-row"><td colspan="3">Enter a valid zip code to see climate data</td></tr>
+            </tbody>
+          </table>
+          <br>
+          <table class="bk-table" id="splant-bk-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Parameter</th>
+                <th style="text-align:right">Your Design</th>
+                <th style="text-align:right">Turf Baseline</th>
+              </tr>
+            </thead>
+            <tbody id="splant-bk-rows">
+              <tr class="empty-row"><td colspan="3">Complete inputs above to see calculation breakdown</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /splant-results -->
+
+    <!-- Assumptions -->
+    <div class="assumptions">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+      </div>
+      <ul>
+        <li><b>Peak Watering Month:</b> Month with highest monthly ETo value from zip code climate data (NOAA/PRISM normals, extracted from Rainfall.xlsx).</li>
+        <li><b>Part 2 — Supplemental Irrigation:</b> LWR (gal/peak mo) = Area (sf) × max(0, [ETo × PF] − P50) × 0.623. If mulched: × 0.83 (17% soil moisture retention). Turf baseline PF = 0.70. Conversion factor 0.623 converts in·sf to gallons.</li>
+        <li><b>Part 3 — Supplemental Fertilizer:</b> Annual N (lbs N/yr) = (Area sf ÷ 1,000) × NF. N Runoff (lbs/yr) = Annual N × R, where R = fraction of applied N converted to surface runoff by NRCS Hydrologic Soil Group (Watershed Treatment Model, CWP 2010). Turf NF = 4.0 lbs N/1,000 sf/yr. If no synthetic fertilizer selected: designed N = 0 (100% reduction).</li>
+        <li><b>Part 4 — Plastic Reduction:</b> # Plants = Area ÷ [0.866 × (spacing in ÷ 12)²] (triangular grid). Container plants: 0.38 lbs plastic/plant. Seedlings/plugs: 0.48 lbs/72-cell tray (A.M. Leonard Horticultural Tool Supply). Plastic avoided = % bare root × total plastic.</li>
+        <li><b>Plant Factors (PF) and Nitrogen Application Factors (NF)</b> are derived from an informal literature review by CWP. Full background, citations, and methodology are available in the
+          <a href="https://github.com/cwp-org/p2-calculator/blob/main/Landscape%20Calculator%20Background%20Research.docx"
+             target="_blank" rel="noopener">Landscape Calculator Background Research</a> document.</li>
+        <li><b>Mulch moisture retention (17%):</b> ISA Arboriculture literature review (2025) — <em>Does Excess Mulch Depth lead to poor tree growth and condition?</em></li>
+        <li><b>NRCS Hydrologic Soil Group N runoff fractions:</b> A = 0.75%, B = 2.5%, C = 17.5%, D = 22.5% (CWP Watershed Treatment Model, 2010).</li>
+        <li><b>Additional sources:</b> Rutgers NJAES FS633; Purdue University Turfgrass Science; WUCOLS Plant Factor Database (UC ANR); EPA WaterSense Water Budget Tool; NRCS Hydrologic Soil Groups.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-splant -->
+
+<!-- ── Sustainable Planting override modal ── -->
+<div class="modal-overlay" id="splant-override-modal"
+     onclick="splantHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="splant-modal-title">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <h2 id="splant-modal-title">Override Assumptions — Sustainable Planting</h2>
+        <p>Plant Factor and N Factor defaults come from the selected plant classification. Override any value to customize for site-specific conditions.</p>
+      </div>
+      <button class="modal-close" onclick="splantCloseModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-label">Equations</div>
+      <div class="eq-box">
+        <div><span class="eq-lhs">Irrigation LWR (gal/peak mo)&nbsp;</span> = Area (sf) × max(0, [ETo × PF] − P50) × Conv</div>
+        <div><span class="eq-lhs">If mulched&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> × (1 − Mulch Retention)</div>
+        <div><span class="eq-lhs">Annual N (lbs N/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = (Area ÷ 1,000) × NF</div>
+        <div><span class="eq-lhs">N Runoff (lbs/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Annual N × R (soil runoff fraction — not overridable)</div>
+      </div>
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Current Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="splant-var-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="splantResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="splantApplyAndClose()">Apply &amp; Close</button>
+    </div>
+  </div><!-- /modal -->
+</div><!-- /splant-override-modal -->
+
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
 const ITEMS = [
@@ -2313,7 +2750,7 @@ function resetOverrides() {
 
 // Close any open modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); waterCloseModal(); leqpCloseModal(); }
+  if (e.key === 'Escape') { closeModal(); lscCloseModal(); nutCloseModal(); fleetCloseModal(); waterCloseModal(); leqpCloseModal(); splantCloseModal(); }
 });
 
 // ── Tab & breakdown helpers ───────────────────────────────────────────────────
@@ -2326,7 +2763,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape', nutrients: 'tab-nutrients', leqp: 'tab-leqp' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', water: 'tab-water', landscape: 'tab-landscape', nutrients: 'tab-nutrients', leqp: 'tab-leqp', splant: 'tab-splant' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -3455,6 +3892,297 @@ function leqpResetOverrides() {
   });
   document.getElementById('leqp-override-btn').classList.remove('active');
   leqpRecalc();
+}
+
+// ── Sustainable Planting Calculator ──────────────────────────────────────────
+// Source: Landscaping_Combined_05112026.xlsx ("Landscaping COMBINED" sheet)
+// Background research: Landscape Calculator Background Research.docx (CWP)
+// Climate data: rainfall-data.json (shared with Water Use tab)
+
+const SPLANT_TYPES = {
+  'Natives':                     { pf: 0.3, nf: 0,   impl: 'Lower water needs, lower fertilizer needs' },
+  'Drought Tolerant':            { pf: 0.1, nf: 0.5, impl: 'Lower water needs, lower fertilizer needs' },
+  'Adaptive/Naturalized':        { pf: 0.3, nf: 1,   impl: 'Lower water needs, lower fertilizer needs' },
+  'Ornamental Flowering Plants': { pf: 0.6, nf: 3,   impl: 'Higher water &amp; fertilizer needs' },
+  'Annuals & Seasonal Color':    { pf: 0.9, nf: 5,   impl: 'Higher water &amp; fertilizer needs, plastic containers' },
+  'Wildflower and Meadow Mixes': { pf: 0.1, nf: 0,   impl: 'Lower water needs, lower fertilizer needs' },
+};
+const SPLANT_TURF_PF  = 0.7;
+const SPLANT_TURF_NF  = 4;
+const SPLANT_SOIL_R   = { A: 0.0075, B: 0.025, C: 0.175, D: 0.225 };
+
+const SPLANT_STATIC_DEFAULTS = { conv: 0.623, mulchRetention: 0.17 };
+const SPLANT_OV = {};
+
+function splantGetDefault(key) {
+  if (key === 'pf') { const t = SPLANT_TYPES[document.getElementById('splant-type').value]; return t ? t.pf : '—'; }
+  if (key === 'nf') { const t = SPLANT_TYPES[document.getElementById('splant-type').value]; return t ? t.nf : '—'; }
+  return SPLANT_STATIC_DEFAULTS[key] ?? '—';
+}
+function splantVal(key) { return (key in SPLANT_OV) ? SPLANT_OV[key] : splantGetDefault(key); }
+
+let splantZipData = null;
+
+function splantZipInput() {
+  const z = document.getElementById('splant-zip').value.trim();
+  if (/^\d{5}$/.test(z)) { splantLookupZip(z); }
+  else { splantSetZipStatus('', ''); splantZipData = null; splantRecalc(); }
+}
+
+async function splantLookupZip(zip) {
+  const ok = await waterEnsureData();
+  if (!ok) { splantSetZipStatus('err', 'Failed to load climate data.'); return; }
+  const entry = waterClimateData[zip];
+  if (!entry) {
+    splantSetZipStatus('err', `Zip code ${zip} not found in climate database.`);
+    splantZipData = null; splantRecalc(); return;
+  }
+  splantZipData = entry;
+  splantSetZipStatus('ok', `✓ Climate data loaded for ${zip}`);
+  splantRecalc();
+}
+
+function splantSetZipStatus(cls, msg) {
+  const el = document.getElementById('splant-zip-status');
+  el.className = 'water-zip-status' + (cls ? ' ' + cls : '');
+  el.textContent = msg;
+}
+
+function splantUpdateTypeInfo() {
+  const typeKey = document.getElementById('splant-type').value;
+  const infoEl  = document.getElementById('splant-type-info');
+  if (!typeKey || !SPLANT_TYPES[typeKey]) { infoEl.style.display = 'none'; return; }
+  const t = SPLANT_TYPES[typeKey];
+  infoEl.style.display = '';
+  infoEl.innerHTML = `<b>Plant Factor (PF):</b> ${t.pf} &ensp;|&ensp; <b>N Factor (NF):</b> ${t.nf}&nbsp;lbs&nbsp;N/1,000&nbsp;sf/yr &ensp;|&ensp; <b>Implications:</b> ${t.impl}`;
+}
+
+function splantRecalc() {
+  splantUpdateTypeInfo();
+
+  const typeKey = document.getElementById('splant-type').value;
+  const area    = parseFloat(document.getElementById('splant-area').value) || 0;
+
+  if (!splantZipData || !typeKey || area <= 0) { splantClearResults(); return; }
+
+  const et = splantZipData.et;
+  const rf = splantZipData.rf;
+
+  // Peak watering month = month with highest ETo
+  let peakIdx = 0;
+  for (let i = 1; i < 12; i++) { if (et[i] > et[peakIdx]) peakIdx = i; }
+  const peakEt    = et[peakIdx];
+  const peakRf    = rf[peakIdx];
+  const peakMonth = MONTHS[peakIdx];
+
+  // Show peak bar
+  document.getElementById('splant-peak-bar').style.display = 'block';
+  document.getElementById('splant-peak-month').textContent = peakMonth;
+  document.getElementById('splant-peak-eto').textContent   = peakEt.toFixed(3);
+  document.getElementById('splant-peak-rf').textContent    = peakRf.toFixed(3);
+
+  // Override-aware values
+  const pf          = +splantVal('pf');
+  const nf          = +splantVal('nf');
+  const conv        = +splantVal('conv');
+  const mulchR      = +splantVal('mulchRetention');
+  const mulch       = document.getElementById('splant-mulch').value === 'yes';
+  const synFert     = document.getElementById('splant-fert').value === 'yes';
+  const soilGrp     = document.getElementById('splant-soil').value;
+  const R           = SPLANT_SOIL_R[soilGrp] || 0;
+
+  // Part 2: Irrigation
+  let lwrDesigned = Math.max(0, area * ((peakEt * pf) - peakRf) * conv);
+  if (mulch) lwrDesigned *= (1 - mulchR);
+  const lwrTurf = Math.max(0, area * ((peakEt * SPLANT_TURF_PF) - peakRf) * conv);
+  const irrRed  = lwrTurf - lwrDesigned;
+  const irrPct  = lwrTurf > 0 ? (irrRed / lwrTurf * 100) : 0;
+
+  // Part 3: Fertilizer
+  const nDesigned = synFert ? (area / 1000) * nf : 0;
+  const nTurf     = (area / 1000) * SPLANT_TURF_NF;
+  const nRed      = nTurf - nDesigned;
+  const nPct      = nTurf > 0 ? (nRed / nTurf * 100) : 0;
+  const nrDes     = nDesigned * R;
+  const nrTurf    = nTurf * R;
+  const nrRed     = nrTurf - nrDes;
+  const nrPct     = nrTurf > 0 ? (nrRed / nrTurf * 100) : 0;
+
+  // Show results section
+  document.getElementById('splant-results').style.display = '';
+  document.getElementById('splant-mulch-note').style.display = mulch ? '' : 'none';
+
+  // Irrigation display
+  document.getElementById('splant-d-pf').textContent  = pf.toFixed(2);
+  document.getElementById('splant-d-lwr').textContent = fmt(lwrDesigned) + ' gal/peak mo';
+  document.getElementById('splant-t-lwr').textContent = fmt(lwrTurf)     + ' gal/peak mo';
+  splantSetReduction('splant-irr', 'IRRIGATION', irrRed, irrPct, 'gal / peak watering month');
+
+  // Fertilizer display
+  document.getElementById('splant-d-nf').textContent = nf.toFixed(1);
+  document.getElementById('splant-d-n').textContent  = nDesigned.toFixed(2) + ' lbs N/yr';
+  document.getElementById('splant-d-nr').textContent = nrDes.toFixed(3)     + ' lbs N/yr';
+  document.getElementById('splant-t-n').textContent  = nTurf.toFixed(2)     + ' lbs N/yr';
+  document.getElementById('splant-t-nr').textContent = nrTurf.toFixed(3)    + ' lbs N/yr';
+  splantSetReduction('splant-n',  'NITROGEN APPLIED', nRed,  nPct,  'lbs N / yr');
+  splantSetReduction('splant-nr', 'N RUNOFF',         nrRed, nrPct, 'lbs N / yr avoided in surface runoff');
+
+  // Breakdown tables
+  splantUpdateClimateTable(et, rf, peakIdx);
+  splantBuildBkTable(peakEt, peakRf, peakMonth, pf, nf, conv, mulch, mulchR, R,
+                     lwrDesigned, lwrTurf, nDesigned, nTurf, nrDes, nrTurf);
+
+  // Part 4 plastic (uses area from closure)
+  splantCalcPlastic();
+}
+
+function splantSetReduction(prefix, subject, reduction, pct, unit) {
+  const isPos   = reduction >= 0;
+  const cell    = document.getElementById(prefix + '-cell');
+  const labelEl = document.getElementById(prefix + '-label');
+  const valEl   = document.getElementById(prefix + '-val');
+  const unitEl  = document.getElementById(prefix + '-unit');
+  const pctEl   = document.getElementById(prefix + '-pct');
+
+  cell.className    = 'splant-red-cell'  + (isPos ? '' : ' neg');
+  labelEl.className = 'splant-red-label' + (isPos ? '' : ' neg');
+  valEl.className   = 'splant-red-val'   + (isPos ? '' : ' neg');
+  unitEl.className  = 'splant-red-unit'  + (isPos ? '' : ' neg');
+  pctEl.className   = 'splant-red-pct'   + (isPos ? '' : ' neg');
+
+  labelEl.textContent = subject + (isPos ? ' REDUCTION' : ' INCREASE');
+  valEl.textContent   = fmt(Math.abs(reduction));
+  unitEl.textContent  = unit;
+  pctEl.textContent   = Math.abs(pct).toFixed(1) + '% ' + (isPos ? 'reduction' : 'increase') + ' vs turf';
+}
+
+function splantCalcPlastic() {
+  const areaEl    = document.getElementById('splant-area');
+  const area      = parseFloat(areaEl ? areaEl.value : '') || 0;
+  const spacing   = parseFloat(document.getElementById('splant-spacing').value) || 0;
+  const ptype     = document.getElementById('splant-ptype').value;
+  const pctBR     = parseFloat(document.getElementById('splant-bareroot').value) || 0;
+  const nPlantsEl = document.getElementById('splant-p4-nplants');
+  const plasticEl = document.getElementById('splant-p4-plastic');
+  const avoidedEl = document.getElementById('splant-p4-avoided');
+
+  if (area <= 0 || spacing <= 0) {
+    nPlantsEl.textContent = plasticEl.textContent = avoidedEl.textContent = '—';
+    return;
+  }
+  const spacingFt = spacing / 12;
+  const nPlants   = area / (0.866 * spacingFt * spacingFt);
+  const plastic   = ptype === 'seedlings' ? (nPlants / 72) * 0.48 : nPlants * 0.38;
+  const avoided   = (pctBR / 100) * plastic;
+
+  nPlantsEl.textContent  = Math.round(nPlants).toLocaleString('en-US');
+  plasticEl.textContent  = plastic.toFixed(2) + ' lbs';
+  avoidedEl.textContent  = avoided.toFixed(2) + ' lbs';
+}
+
+function splantClearResults() {
+  document.getElementById('splant-results').style.display = 'none';
+  document.getElementById('splant-peak-bar').style.display = 'none';
+  splantUpdateTypeInfo();
+}
+
+function splantUpdateClimateTable(et, rf, peakIdx) {
+  const rows = MONTHS.map((m, i) => {
+    const isPeak = i === peakIdx;
+    const style  = isPeak ? ' style="background:#e8f5e9; font-weight:700"' : '';
+    return `<tr${style}>
+      <td>${m}${isPeak ? ' ★' : ''}</td>
+      <td style="text-align:right">${et[i].toFixed(3)}</td>
+      <td style="text-align:right">${rf[i].toFixed(3)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('splant-climate-rows').innerHTML = rows;
+}
+
+function splantBuildBkTable(peakEt, peakRf, peakMonth, pf, nf, conv, mulch, mulchR, R,
+                             lwrDes, lwrTurf, nDes, nTurf, nrDes, nrTurf) {
+  const rows = [
+    ['Peak Watering Month (highest ETo)', peakMonth, peakMonth],
+    ['ETo — Peak Month (in/mo)', peakEt.toFixed(3), peakEt.toFixed(3)],
+    ['P50 Rainfall — Peak Month (in/mo)', peakRf.toFixed(3), peakRf.toFixed(3)],
+    ['Plant Factor (PF)', pf.toFixed(2), SPLANT_TURF_PF.toFixed(2)],
+    ['Volume conversion factor', conv.toFixed(3), conv.toFixed(3)],
+    ['Mulch factor applied', mulch ? `× ${(1 - mulchR).toFixed(2)}` : 'None', 'N/A'],
+    ['Water Requirement (gal/peak mo)', fmt(lwrDes), fmt(lwrTurf)],
+    ['N Application Factor (lbs N/1,000 sf/yr)', nf.toFixed(1), SPLANT_TURF_NF.toFixed(1)],
+    ['Annual N Applied (lbs N/yr)', nDes.toFixed(2), nTurf.toFixed(2)],
+    ['Soil N Runoff Fraction (R)', R.toString(), R.toString()],
+    ['N to Surface Runoff (lbs N/yr)', nrDes.toFixed(3), nrTurf.toFixed(3)],
+  ];
+  document.getElementById('splant-bk-rows').innerHTML = rows.map(([p, d, t]) =>
+    `<tr><td>${p}</td><td style="text-align:right">${d}</td><td style="text-align:right">${t}</td></tr>`
+  ).join('');
+}
+
+function splantToggleBk() {
+  const body  = document.getElementById('splant-bk-body');
+  const caret = document.getElementById('splant-bk-caret');
+  const btn   = document.getElementById('splant-bk-toggle');
+  const open  = body.classList.toggle('open');
+  caret.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// Override modal
+const SPLANT_VAR_DEFS = [
+  { group: 'Plant Type Parameters (set by plant classification selection)' },
+  { key: 'pf', label: 'Plant Factor (PF)',                unit: 'dimensionless (0–1)' },
+  { key: 'nf', label: 'Nitrogen Application Factor (NF)', unit: 'lbs N / 1,000 sf / yr' },
+  { group: 'Water Calculation Parameters' },
+  { key: 'conv',           label: 'Volume conversion factor',       unit: 'in·sf → gal (default 0.623)' },
+  { key: 'mulchRetention', label: 'Mulch soil moisture retention',  unit: 'fraction (default 0.17 = 17%)' },
+];
+
+function splantBuildModal() {
+  let html = '';
+  SPLANT_VAR_DEFS.forEach(v => {
+    if (v.group) { html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`; return; }
+    const def     = splantGetDefault(v.key);
+    const cur     = SPLANT_OV[v.key] ?? '';
+    const changed = v.key in SPLANT_OV ? ' changed' : '';
+    const dispDef = typeof def === 'number' ? (def % 1 === 0 ? def : parseFloat(def.toPrecision(6))) : def;
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${dispDef}</td>
+      <td><input class="var-input${changed}" id="splant-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${dispDef}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('splant-var-tbody').innerHTML = html;
+}
+
+function splantOpenModal()  { splantBuildModal(); document.getElementById('splant-override-modal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function splantCloseModal() { document.getElementById('splant-override-modal').classList.remove('open'); document.body.style.overflow = ''; }
+function splantHandleOverlayClick(e) { if (e.target === e.currentTarget) splantCloseModal(); }
+
+function splantApplyAndClose() {
+  SPLANT_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`splant-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num >= 0) SPLANT_OV[v.key] = num;
+    else delete SPLANT_OV[v.key];
+  });
+  document.getElementById('splant-override-btn').classList.toggle('active', Object.keys(SPLANT_OV).length > 0);
+  splantRecalc();
+  splantCloseModal();
+}
+
+function splantResetOverrides() {
+  Object.keys(SPLANT_OV).forEach(k => delete SPLANT_OV[k]);
+  SPLANT_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`splant-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('splant-override-btn').classList.remove('active');
+  splantRecalc();
 }
 </script>
 </body>
