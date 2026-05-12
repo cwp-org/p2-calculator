@@ -917,6 +917,16 @@
       .metric-val { font-size: 20px; }
       .var-input  { width: 72px; }
     }
+
+    /* ── Green Fleet Calculator ──────────────────────────────────── */
+    .fleet-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+    .fleet-tbl th { background:var(--green-dark); color:#fff; padding:9px 10px; text-align:left; font-weight:600; font-size:12px; }
+    .fleet-tbl td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .fleet-tbl tr:last-child td { border-bottom:none; }
+    .fleet-tbl tbody tr:hover td { background:rgba(64,145,108,.06); }
+    .fleet-add-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:8px 16px; background:var(--green-mid); color:#fff; border:none; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
+    .fleet-add-btn:hover { background:var(--green-dark); }
+    .fleet-elec-info { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.4; }
   </style>
 </head>
 <body>
@@ -930,6 +940,7 @@
 <!-- ── Tab bar ──────────────────────────────────────────── -->
 <nav class="tab-bar" role="tablist">
   <button class="tab-btn active" role="tab" onclick="switchTab('plastics',this)">Single Use Plastic Reduction</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('fleet',this)">Green Fleet Vehicles</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('leqp',this)">Landscaping Equipment</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('splant',this)">Sustainable Planting</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('wrsalt',this)">Winter Road Salt</button>
@@ -1090,6 +1101,172 @@
 
   </div><!-- /panel-inner -->
 </div><!-- /tab-plastics -->
+
+<!-- ════════════════════════════════════════════════════════
+     TAB 2 · GREEN FLEET VEHICLES
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-fleet" role="tabpanel">
+  <div class="panel-inner">
+    <p class="panel-title">Green Fleet Vehicle Calculator</p>
+    <p class="panel-desc">
+      Select your state, then add the vehicles you plan to replace with cleaner alternatives.
+      For each vehicle choose <b>Hybrid</b> (35% fuel-efficiency gain) or <b>Electric (EV)</b>.
+      The calculator estimates annual changes in fuel use, petroleum hydrocarbon runoff,
+      greenhouse gas emissions, and fuel cost savings.
+    </p>
+
+    <!-- State selector -->
+    <div class="input-grid" style="grid-template-columns:minmax(260px,420px);margin-bottom:20px">
+      <div class="input-card">
+        <span class="ic-icon">📍</span>
+        <div class="ic-label">State (for electricity rates &amp; grid emissions)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <select id="fleet-state"
+                  style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px"
+                  onchange="fleetRecalc()">
+            <option value="">— Select State —</option>
+            <option value="AK">Alaska</option>
+            <option value="AL">Alabama</option>
+            <option value="AR">Arkansas</option>
+            <option value="AZ">Arizona</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DC">District of Columbia</option>
+            <option value="DE">Delaware</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="IA">Iowa</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MD">Maryland</option>
+            <option value="ME">Maine</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MO">Missouri</option>
+            <option value="MS">Mississippi</option>
+            <option value="MT">Montana</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="NE">Nebraska</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NV">Nevada</option>
+            <option value="NY">New York</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VA">Virginia</option>
+            <option value="VT">Vermont</option>
+            <option value="WA">Washington</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WV">West Virginia</option>
+            <option value="WY">Wyoming</option>
+          </select>
+        </div>
+        <div id="fleet-elec-info" class="fleet-elec-info"></div>
+      </div>
+    </div>
+
+    <!-- Vehicle rows -->
+    <p class="wrs-sec-label" style="margin-bottom:10px">Fleet Vehicles Being Replaced</p>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="fleet-tbl" id="fleet-table">
+        <thead>
+          <tr>
+            <th>Vehicle Type</th>
+            <th>Count</th>
+            <th>Miles / Year<br><span style="font-weight:400;font-size:11px">(per vehicle)</span></th>
+            <th>Replacement</th>
+            <th style="width:36px"></th>
+          </tr>
+        </thead>
+        <tbody id="fleet-tbody">
+          <tr id="fleet-empty-row">
+            <td colspan="5" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">
+              Click "+ Add Vehicle" below to begin
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="fleet-add-btn" onclick="fleetAddRow()">+ Add Vehicle</button>
+
+    <!-- Results -->
+    <div class="results-card" id="fleet-results-card" style="display:none;margin-top:28px">
+      <div class="results-head">Estimated Annual Benefits from Fleet Replacement</div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:10px 0 8px">Fuel Use Changes</div>
+      <div class="metrics-row" style="margin-bottom:20px">
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-gas">—</div>
+          <div class="metric-label">Gasoline Reduced</div>
+          <div class="metric-unit">gal / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-diesel">—</div>
+          <div class="metric-label">Diesel Reduced</div>
+          <div class="metric-unit">gal / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-elec">—</div>
+          <div class="metric-label">Electricity Added (EVs)</div>
+          <div class="metric-unit">kWh / year</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Environmental &amp; Cost Impact</div>
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-hc">—</div>
+          <div class="metric-label">HC Runoff Reduction</div>
+          <div class="metric-unit">lbs / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-ghg">—</div>
+          <div class="metric-label">Net GHG Reduction</div>
+          <div class="metric-unit">MTCO₂e / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="fleet-r-cost">—</div>
+          <div class="metric-label">Net Cost Savings</div>
+          <div class="metric-unit">$ / year</div>
+        </div>
+      </div>
+
+      <div id="fleet-note" style="font-size:11px;color:var(--muted);margin-top:14px;padding-top:10px;border-top:1px solid var(--border);line-height:1.5"></div>
+    </div>
+
+    <!-- Assumptions -->
+    <div class="assumptions" style="margin-top:28px">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+      </div>
+      <ul>
+        <li><b>Vehicle Fuel Efficiency:</b> Conventional efficiency from U.S. DOE "Average Fuel Economy by Major Vehicle Category" (<a href="https://afdc.energy.gov/data/10310" target="_blank" rel="noopener">AFDC 10310</a>). Hybrid efficiency assumes a 35% improvement over conventional. EV efficiency from EPA 2025 Automotive Trends Report Figure 4.20 (cars &amp; light trucks) and NREL/EPA sources for transit &amp; heavy vehicles.</li>
+        <li><b>Fuel Costs:</b> Gasoline $2.691/gal · Diesel/Biodiesel $3.056/gal — EPA P2 Calculator defaults. Electricity from EIA Table 5.6.B, February 2026 YTD; Transportation-sector rate used when available, otherwise All Sectors.</li>
+        <li><b>Hydrocarbon Runoff:</b> Fuel density: Gasoline 6.1 lb/gal, Diesel 7.1 lb/gal. An inflation factor of 4.21× accounts for motor oil spills proportional to fuel use, based on petroleum release data from Puget Sound (<a href="https://apps.ecology.wa.gov/publications/documents/1103055.pdf" target="_blank" rel="noopener">WA Ecology, 2011</a>).</li>
+        <li><b>GHG Emission Factors:</b> Gasoline 8.81 kg CO₂e/gal · Diesel 10.24 kg CO₂e/gal — EPA P2 GHG Calculator. Electricity: state-level non-baseload output emission rates from EPA eGRID 2023 (<a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">eGRID Detailed Data</a>). Units: lb/MWh converted to kg/kWh.</li>
+        <li>Net GHG reduction accounts for emissions from electricity generation. In high-coal grid states, EV emissions may partially or fully offset fuel savings.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-fleet -->
 
 <!-- ════════════════════════════════════════════════════════
      TAB 6 · LANDSCAPING EQUIPMENT
@@ -2349,7 +2526,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -3910,6 +4087,283 @@ function wrsToggleBk() {
   caret.classList.toggle('open', open);
   btn.setAttribute('aria-expanded', open);
 }
+
+// ═══════════════════════════════════════════════════════════════
+// GREEN FLEET CALCULATOR
+// ═══════════════════════════════════════════════════════════════
+
+const FLEET_VEHICLES = {
+  'Motorcycle':         { fuel:'gasoline', mpg:44,    hybridMpg:59.4,   evMpkWh:10,   evAvail:true  },
+  'Car':                { fuel:'gasoline', mpg:24.4,  hybridMpg:32.94,  evMpkWh:3.1,  evAvail:true  },
+  'Light Truck/Pickup': { fuel:'gasoline', mpg:17.8,  hybridMpg:24.03,  evMpkWh:2.1,  evAvail:true  },
+  'Transit Van':        { fuel:'diesel',   mpg:12.56, hybridMpg:16.956, evMpkWh:2.9,  evAvail:true  },
+  'School Bus':         { fuel:'diesel',   mpg:7.3,   hybridMpg:9.855,  evMpkWh:1.5,  evAvail:true  },
+  'Class 8 Truck':      { fuel:'diesel',   mpg:6.4,   hybridMpg:8.64,   evMpkWh:1.8,  evAvail:true  },
+  'Transit Bus':        { fuel:'diesel',   mpg:3.83,  hybridMpg:5.1705, evMpkWh:1.5,  evAvail:true  },
+  'Refuse Truck':       { fuel:'diesel',   mpg:2.8,   hybridMpg:3.78,   evMpkWh:null, evAvail:false },
+};
+
+const FLEET_FUEL_COST   = { gasoline:2.691, diesel:3.056 };
+const FLEET_HC_DENSITY  = { gasoline:6.1,   diesel:7.1 };
+const FLEET_HC_INFLATION = 4.210526315789474;
+const FLEET_GHG_FACTOR  = { gasoline:8.81,  diesel:10.24 };
+
+// eGRID 2023 — state non-baseload CO₂e emission rates (lb/MWh)
+const FLEET_EGRID = {
+  AK:1153.507,AL:1246.882,AR:1657.957,AZ:1207.674,CA:886.04,
+  CO:1628.885,CT:850.514,DC:192.684,DE:837.165,FL:991.778,
+  GA:1667.755,HI:1721.987,IA:1694.43,ID:942.842,IL:1411.573,
+  IN:2034.814,KS:2050.66,KY:1939.765,LA:1018.054,MA:937.805,
+  MD:1221.619,ME:747.218,MI:1469.21,MN:1531.409,MO:1868.369,
+  MS:1044.653,MT:1833.476,NC:1283.537,ND:2051.015,NE:2054.567,
+  NH:939.871,NJ:897.241,NM:1495.533,NV:1038.894,NY:1024.911,
+  OH:1551.642,OK:1285.612,OR:934.474,PA:1344.51,RI:943.292,
+  SC:1585.256,SD:1529.074,TN:1743.734,TX:1285.699,UT:1946.888,
+  VA:960.788,VT:598.858,WA:1052.912,WI:1824.162,WV:2165.219,WY:2373.731
+};
+
+// EIA Table 5.6.B Feb 2026 YTD — cents/kWh
+// Transportation sector where available; All Sectors otherwise (marked with *)
+const FLEET_ELEC_PRICE = {
+  AK:23.12,AL:12.94,AR:13.24,AZ:9.74,CA:16.37,CO:10.37,CT:20.83,
+  DC:16.01,DE:15.20,FL:11.96,GA:8.70,HI:37.05,IA:9.41,ID:9.97,
+  IL:8.22,IN:13.95,KS:11.77,KY:11.69,LA:10.73,MA:12.35,MD:16.45,
+  ME:26.05,MI:13.85,MN:11.52,MO:9.67,MS:12.16,MT:11.26,NC:10.06,
+  ND:8.66,NE:9.67,NH:24.13,NJ:13.35,NM:9.10,NV:9.80,NY:20.45,
+  OH:9.85,OK:9.74,OR:14.02,PA:12.59,RI:23.00,SC:12.99,SD:11.85,
+  TN:11.64,TX:7.58,UT:12.16,VA:11.55,VT:20.27,WA:13.53,WI:19.55,
+  WV:11.71,WY:9.95
+};
+
+// States where Transportation-sector price was available
+const FLEET_TRANSPORT_STATES = new Set([
+  'AR','AZ','CA','CO','CT','DC','FL','GA','IL','IN','LA','MA','MD',
+  'MI','MN','MO','NC','NJ','NV','NY','OH','OR','PA','RI','TX','UT','VA','WA','WI'
+]);
+
+let fleetRowCounter = 0;
+
+function fleetAddRow() {
+  const rowId = ++fleetRowCounter;
+  const tbody = document.getElementById('fleet-tbody');
+  const emptyRow = document.getElementById('fleet-empty-row');
+  if (emptyRow) emptyRow.remove();
+
+  const vehicleOpts = Object.keys(FLEET_VEHICLES)
+    .map(v => `<option value="${v}">${v}</option>`).join('') +
+    `<option value="Custom">Custom Vehicle</option>`;
+
+  const replOpts = `<option value="hybrid">Hybrid</option><option value="ev">Electric (EV)</option>`;
+
+  const cellStyle = 'padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top';
+  const selStyle  = 'width:100%;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;background:var(--card-bg);color:var(--text)';
+  const inpStyle  = 'padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;text-align:right;background:var(--card-bg);color:var(--text)';
+
+  const tr = document.createElement('tr');
+  tr.id = `fleet-row-${rowId}`;
+  tr.innerHTML = `
+    <td style="${cellStyle};min-width:170px">
+      <select id="fleet-vtype-${rowId}" style="${selStyle}" onchange="fleetVehicleChanged(${rowId})">
+        ${vehicleOpts}
+      </select>
+      <div id="fleet-custom-${rowId}" style="display:none;margin-top:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Custom vehicle inputs:</div>
+        <select id="fleet-cfuel-${rowId}" style="${selStyle};margin-bottom:5px" onchange="fleetRecalc()">
+          <option value="gasoline">Gasoline</option>
+          <option value="diesel">Diesel</option>
+        </select>
+        <input type="number" id="fleet-cmpg-${rowId}" placeholder="Current mpg" min="0.1" step="any"
+          oninput="fleetRecalc()" style="${inpStyle};width:100%;margin-bottom:5px">
+        <input type="number" id="fleet-crepl-${rowId}" placeholder="Replacement mpg or mi/kWh" min="0.1" step="any"
+          oninput="fleetRecalc()" style="${inpStyle};width:100%">
+        <div id="fleet-crepl-hint-${rowId}" style="font-size:10.5px;color:var(--muted);margin-top:3px">mpg for Hybrid, mi/kWh for EV</div>
+      </div>
+    </td>
+    <td style="${cellStyle};width:64px">
+      <input type="number" id="fleet-count-${rowId}" value="1" min="1" step="1"
+        oninput="fleetRecalc()" style="${inpStyle};width:56px">
+    </td>
+    <td style="${cellStyle};width:110px">
+      <input type="number" id="fleet-miles-${rowId}" placeholder="12000" min="1" step="1"
+        oninput="fleetRecalc()" style="${inpStyle};width:100px">
+    </td>
+    <td style="${cellStyle};min-width:150px">
+      <select id="fleet-repl-${rowId}" style="${selStyle}" onchange="fleetReplChanged(${rowId})">
+        ${replOpts}
+      </select>
+    </td>
+    <td style="${cellStyle};width:36px;text-align:center">
+      <button onclick="fleetRemoveRow(${rowId})"
+        style="background:none;border:none;cursor:pointer;font-size:17px;color:var(--muted);padding:2px 4px;border-radius:4px;line-height:1"
+        title="Remove">×</button>
+    </td>
+  `;
+  tbody.appendChild(tr);
+  fleetVehicleChanged(rowId);
+}
+
+function fleetVehicleChanged(rowId) {
+  const vtypeEl  = document.getElementById(`fleet-vtype-${rowId}`);
+  const customDiv = document.getElementById(`fleet-custom-${rowId}`);
+  const replEl   = document.getElementById(`fleet-repl-${rowId}`);
+  if (!vtypeEl || !replEl) return;
+
+  const vtype = vtypeEl.value;
+  if (vtype === 'Custom') {
+    customDiv.style.display = 'block';
+    // Re-enable both options
+    replEl.querySelectorAll('option').forEach(o => { o.disabled = false; o.textContent = o.value === 'ev' ? 'Electric (EV)' : 'Hybrid'; });
+  } else {
+    customDiv.style.display = 'none';
+    const vdata = FLEET_VEHICLES[vtype];
+    const evOpt = replEl.querySelector('option[value="ev"]');
+    if (vdata && !vdata.evAvail) {
+      evOpt.disabled = true;
+      evOpt.textContent = 'Electric (EV) — N/A';
+      if (replEl.value === 'ev') replEl.value = 'hybrid';
+    } else {
+      evOpt.disabled = false;
+      evOpt.textContent = 'Electric (EV)';
+    }
+  }
+  fleetRecalc();
+}
+
+function fleetReplChanged(rowId) {
+  const replEl  = document.getElementById(`fleet-repl-${rowId}`);
+  const hintEl  = document.getElementById(`fleet-crepl-hint-${rowId}`);
+  if (!replEl || !hintEl) return;
+  hintEl.textContent = replEl.value === 'ev' ? 'Enter miles per kWh' : 'Enter mpg (hybrid)';
+  fleetRecalc();
+}
+
+function fleetRemoveRow(rowId) {
+  const row = document.getElementById(`fleet-row-${rowId}`);
+  if (row) row.remove();
+  const tbody = document.getElementById('fleet-tbody');
+  if (!tbody.querySelector('tr[id^="fleet-row-"]')) {
+    const tr = document.createElement('tr');
+    tr.id = 'fleet-empty-row';
+    tr.innerHTML = '<td colspan="5" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Click "+ Add Vehicle" below to begin</td>';
+    tbody.appendChild(tr);
+  }
+  fleetRecalc();
+}
+
+function fleetRecalc() {
+  const tbody = document.getElementById('fleet-tbody');
+  const rows  = tbody.querySelectorAll('tr[id^="fleet-row-"]');
+  const card  = document.getElementById('fleet-results-card');
+
+  if (!rows.length) { card.style.display = 'none'; return; }
+
+  let gasChange   = 0;  // gal/yr reduction (positive = less gasoline)
+  let dieselChange = 0; // gal/yr reduction (positive = less diesel)
+  let elecChange  = 0;  // kWh/yr added
+  let anyData     = false;
+
+  rows.forEach(tr => {
+    const id    = tr.id.replace('fleet-row-', '');
+    const vtype = document.getElementById(`fleet-vtype-${id}`)?.value;
+    const count = parseFloat(document.getElementById(`fleet-count-${id}`)?.value) || 0;
+    const miles = parseFloat(document.getElementById(`fleet-miles-${id}`)?.value) || 0;
+    const repl  = document.getElementById(`fleet-repl-${id}`)?.value;
+    if (!vtype || count <= 0 || miles <= 0) return;
+
+    const totalMiles = miles * count;
+
+    if (vtype === 'Custom') {
+      const fuel    = document.getElementById(`fleet-cfuel-${id}`)?.value || 'gasoline';
+      const curMpg  = parseFloat(document.getElementById(`fleet-cmpg-${id}`)?.value)  || 0;
+      const replEff = parseFloat(document.getElementById(`fleet-crepl-${id}`)?.value) || 0;
+      if (curMpg <= 0 || replEff <= 0) return;
+      anyData = true;
+      const curUse = totalMiles / curMpg;
+      if (repl === 'ev') {
+        if (fuel === 'gasoline') gasChange   += curUse;
+        else                     dieselChange += curUse;
+        elecChange += totalMiles / replEff;
+      } else {
+        const replUse = totalMiles / replEff;
+        if (fuel === 'gasoline') gasChange   += curUse - replUse;
+        else                     dieselChange += curUse - replUse;
+      }
+    } else {
+      const v = FLEET_VEHICLES[vtype];
+      if (!v) return;
+      anyData = true;
+      const curUse = totalMiles / v.mpg;
+      if (repl === 'ev') {
+        if (v.fuel === 'gasoline') gasChange   += curUse;
+        else                       dieselChange += curUse;
+        if (v.evMpkWh) elecChange += totalMiles / v.evMpkWh;
+      } else {
+        const replUse = totalMiles / v.hybridMpg;
+        if (v.fuel === 'gasoline') gasChange   += curUse - replUse;
+        else                       dieselChange += curUse - replUse;
+      }
+    }
+  });
+
+  if (!anyData) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  // Fuel use display
+  document.getElementById('fleet-r-gas').textContent    = fmt(Math.max(0, gasChange));
+  document.getElementById('fleet-r-diesel').textContent = fmt(Math.max(0, dieselChange));
+  document.getElementById('fleet-r-elec').textContent   = fmt(elecChange);
+
+  // Hydrocarbon runoff reduction (lbs/yr)
+  const hc = (gasChange * FLEET_HC_DENSITY.gasoline + dieselChange * FLEET_HC_DENSITY.diesel) * FLEET_HC_INFLATION;
+  document.getElementById('fleet-r-hc').textContent = fmt(Math.max(0, hc));
+
+  // Grid emissions & electricity price from state
+  const st = document.getElementById('fleet-state')?.value || '';
+  const egridLb = FLEET_EGRID[st] ?? null;
+  // lb/MWh → kg/kWh: × (0.453592 kg/lb) / (1000 kWh/MWh)
+  const elecCo2eKgPerKwh = egridLb !== null ? egridLb * 0.453592 / 1000 : 0;
+
+  // Net GHG reduction (kg CO₂e/yr → MTCO₂e)
+  const ghgKg = gasChange * FLEET_GHG_FACTOR.gasoline + dieselChange * FLEET_GHG_FACTOR.diesel - elecChange * elecCo2eKgPerKwh;
+  const ghgMT = ghgKg / 1000;
+  const ghgEl = document.getElementById('fleet-r-ghg');
+  ghgEl.textContent  = fmt(Math.abs(ghgMT));
+  ghgEl.style.color  = ghgMT >= 0 ? '' : '#c0392b';
+
+  // Net cost savings ($/yr)
+  const elecCents = FLEET_ELEC_PRICE[st] ?? null;
+  let costSavings;
+  if (elecCents !== null) {
+    costSavings = gasChange * FLEET_FUEL_COST.gasoline + dieselChange * FLEET_FUEL_COST.diesel - elecChange * (elecCents / 100);
+  } else {
+    costSavings = gasChange * FLEET_FUEL_COST.gasoline + dieselChange * FLEET_FUEL_COST.diesel;
+  }
+  const costEl = document.getElementById('fleet-r-cost');
+  costEl.textContent = (costSavings < 0 ? '-' : '') + '$' + fmt(Math.abs(costSavings));
+  costEl.style.color = costSavings >= 0 ? '' : '#c0392b';
+
+  // State info line
+  const infoEl = document.getElementById('fleet-elec-info');
+  if (st && infoEl) {
+    const priceTag = FLEET_TRANSPORT_STATES.has(st) ? 'Transportation sector' : 'All Sectors';
+    infoEl.textContent = `Electricity: ${elecCents !== null ? elecCents.toFixed(2) + ' ¢/kWh' : '—'} (${priceTag}, EIA Feb 2026 YTD) | Grid: ${egridLb !== null ? egridLb.toFixed(0) + ' lb CO₂e/MWh' : '—'} (eGRID 2023)`;
+  } else if (infoEl) {
+    infoEl.textContent = '';
+  }
+
+  // Note
+  const noteEl = document.getElementById('fleet-note');
+  if (noteEl) {
+    if (!st) {
+      noteEl.textContent = 'ℹ️ Select a state above to include electricity grid emissions and EV charging costs in the calculation.';
+    } else if (ghgMT < 0) {
+      noteEl.textContent = `⚠️ Net GHG shown in red — electricity grid emissions in ${st} (${egridLb?.toFixed(0)} lb/MWh) exceed the fuel-combustion savings in this scenario. Consider a larger share of hybrids or check future grid projections.`;
+    } else {
+      noteEl.textContent = `Net GHG reduction accounts for electricity grid emissions in ${st} (${egridLb?.toFixed(0) ?? '—'} lb CO₂e/MWh, eGRID 2023). ${elecCents === null ? 'Electricity cost not available for this state.' : ''}`;
+    }
+  }
+}
+
 </script>
 </body>
 </html>
