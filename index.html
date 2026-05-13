@@ -1016,6 +1016,7 @@
   <button class="tab-btn"        role="tab" onclick="switchTab('splant',this)">Sustainable Planting</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('wrsalt',this)">Winter Road Salt</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('gfv2',this)">Greener Fleets</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('gle',this)">Greener Landscaping Equipment</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -2586,6 +2587,179 @@
 
   </div><!-- /panel-inner -->
 </div><!-- /tab-gfv2 -->
+<!-- ════════════════════════════════════════════════════════
+     TAB: GREENER LANDSCAPING EQUIPMENT
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-gle" role="tabpanel">
+  <div class="panel-inner">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:10px">
+      <div style="flex:1;min-width:280px">
+        <p class="panel-title" style="margin-bottom:8px">Greener Landscaping Equipment Calculator</p>
+        <p class="panel-desc" style="margin:0">
+          Compare battery-powered landscaping equipment to gasoline-powered equipment.
+          The tool reports annual operating cost, CO&#8322;e emissions, and gasoline spillage reduced
+          when switching to electric battery-powered equipment.
+        </p>
+      </div>
+      <button class="override-btn" id="gle-override-btn" onclick="gleOpenModal()" style="margin-top:6px">
+        <span>&#9881;</span> Override Defaults
+      </button>
+    </div>
+
+    <!-- Inputs -->
+    <div class="input-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:18px;margin-bottom:18px">
+
+      <div class="input-card">
+        <span class="ic-icon">&#128736;</span>
+        <div class="ic-label">Equipment Type</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <select id="gle-equip"
+                  style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px"
+                  onchange="gleEquipChanged()">
+            <option value="">&#8212; Select Equipment &#8212;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#128205;</span>
+        <div class="ic-label">Region (electricity grid &amp; price)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <select id="gle-region"
+                  style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px"
+                  onchange="gleRegionChanged()">
+            <option value="">&#8212; Select Region &#8212;</option>
+            <option>NYC/Westchester, NY</option>
+            <option>Long Island, NY</option>
+            <option>Upstate New York</option>
+            <option>Puerto Rico and Virgin Islands</option>
+            <option>New Jersey</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#9201;</span>
+        <div class="ic-label">Hours Used Per Year</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gle-hours" placeholder="e.g. 100" min="0" step="1"
+                 oninput="gleRecalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#9981;</span>
+        <div class="ic-label">Gasoline Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gle-gas-price" placeholder="e.g. 3.00" min="0" step="0.001"
+                 oninput="gleRecalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-card" id="gle-results" style="display:none">
+      <div class="results-head">Annual Benefits of Switching to Battery-Powered Equipment</div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:10px 0 8px">Battery-Powered Equipment</div>
+      <div class="metrics-row" style="margin-bottom:20px">
+        <div class="metric">
+          <div class="metric-val" id="gle-r-batt-cost">&#8212;</div>
+          <div class="metric-label">Annual Cost</div>
+          <div class="metric-unit">$ / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gle-r-batt-co2">&#8212;</div>
+          <div class="metric-label">Annual CO&#8322;e Emissions</div>
+          <div class="metric-unit">lb / year</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Gasoline-Powered Equipment</div>
+      <div class="metrics-row" style="margin-bottom:20px">
+        <div class="metric">
+          <div class="metric-val" id="gle-r-gas-cost">&#8212;</div>
+          <div class="metric-label">Annual Cost</div>
+          <div class="metric-unit">$ / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gle-r-gas-co2">&#8212;</div>
+          <div class="metric-label">Annual CO&#8322;e Emissions</div>
+          <div class="metric-unit">lb / year</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Net Benefits of Switching</div>
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="metric-val" id="gle-r-spill">&#8212;</div>
+          <div class="metric-label">Gasoline Spillage Reduced</div>
+          <div class="metric-unit">lb / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gle-r-cost-pct">&#8212;</div>
+          <div class="metric-label" id="gle-r-cost-pct-lbl">Cost Reduction</div>
+          <div class="metric-unit">vs gasoline</div>
+        </div>
+      </div>
+
+      <div id="gle-note" style="font-size:11px;color:var(--muted);margin-top:14px;padding-top:10px;border-top:1px solid var(--border);line-height:1.5"></div>
+    </div>
+
+    <!-- Sources -->
+    <div class="assumptions" style="margin-top:28px">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Equations, Assumptions &amp; Sources</span>
+      </div>
+      <div class="eq-box" style="margin-top:8px;margin-bottom:12px">
+        <div><span class="eq-lhs">Battery Cost ($/yr)&nbsp;&nbsp;&nbsp;</span> = Battery&nbsp;kWh (Total Machine) &#215; Hours/yr &#215; (1&nbsp;+&nbsp;Charging Loss) &#215; Electricity Price (&#162;/kWh) &#247; 100</div>
+        <div><span class="eq-lhs">Battery CO&#8322;e (lb/yr)&nbsp;</span> = Battery&nbsp;kWh &#215; Hours/yr &#215; (1&nbsp;+&nbsp;Charging Loss) &#215; Region CO&#8322;e (lb/MWh) &#215; 0.001</div>
+        <div><span class="eq-lhs">Gas Cost ($/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Gallons of Gas/Hr &#215; Hours/yr &#215; Gas Price ($/gal)</div>
+        <div><span class="eq-lhs">Gas CO&#8322;e (lb/yr)&nbsp;&nbsp;&nbsp;</span> = Gas HP &#215; Hours/yr &#215; HP CO&#8322; Constant (g/hp&middot;hr) &#247; 453.592</div>
+        <div><span class="eq-lhs">Spillage Reduced (lb/yr)</span> = Gallons of Gas/Hr &#215; Hours/yr &#215; 0.0599 (lb/gal) &#215; 0.06 (runoff fraction)</div>
+      </div>
+      <ul>
+        <li><b>Equipment data:</b> Massachusetts Commercial Battery-Powered Electric Lawn &amp; Garden Equipment Calculator (<a href="https://www.mass.gov/doc/commercial-battery-powered-electric-lawn-and-garden-equipment-calculator-8823" target="_blank" rel="noopener">mass.gov</a>).</li>
+        <li><b>Region CO&#8322;e emission rate (Table 1):</b> EPA eGRID 2023 annual non-baseload output emission rates (<a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">EPA eGRID Detailed Data</a>).</li>
+        <li><b>Region electricity price (Table 2):</b> EIA Electric Power Monthly, February 2026 YTD (<a href="https://www.eia.gov/electricity/monthly/" target="_blank" rel="noopener">EIA</a>).</li>
+        <li><b>Gasoline spillage source factor (0.0599 lb/gal):</b> sum of equipment refueling spillage (17 g/event, ~0.0375 lb/gal), pump-filling spillage (0.7 lb/1000 gal &#8776; 0.0007 lb/gal), and residential transport spillage (9.829 g/gal &#8776; 0.0217 lb/gal). Sources: <a href="https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P100021U.txt" target="_blank" rel="noopener">EPA NONROAD/PFC</a>, <a href="https://www.epa.gov/sites/default/files/2020-09/documents/5.2_transportation_and_marketing_of_petroleum_liquids.pdf" target="_blank" rel="noopener">EPA AP-42 §5.2</a>, <a href="https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004KS7.txt" target="_blank" rel="noopener">EPA PFC</a>.</li>
+        <li><b>Runoff delivery fraction (0.06):</b> Puget Sound toxics loading assessment, ~6% of motor oil released annually transported in surface water runoff (<a href="https://apps.ecology.wa.gov/publications/publications/1103055.pdf" target="_blank" rel="noopener">WA Ecology 2011</a>). Used here as a screening-level petroleum runoff proxy.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-gle -->
+
+<!-- ── Greener Landscaping Equipment Override Modal ─────────────────────────── -->
+<div class="modal-overlay" id="gle-override-modal"
+     onclick="gleHandleOverlayClick(event)" role="dialog"
+     aria-modal="true" aria-labelledby="gle-modal-title">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <h2 id="gle-modal-title">Override Defaults &mdash; Greener Landscaping Equipment</h2>
+        <p>Values pre-fill from your equipment and region selection. Override any to customize.</p>
+      </div>
+      <button class="modal-close" onclick="gleCloseModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-label">Variables</div>
+      <table class="var-table">
+        <thead>
+          <tr><th>Variable</th><th>Current Default</th><th>Your Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody id="gle-var-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost"   onclick="gleResetOverrides()">Reset to Defaults</button>
+      <button class="btn-primary" onclick="gleApplyAndClose()">Apply &amp; Close</button>
+    </div>
+  </div>
+</div><!-- /gle-override-modal -->
+
 
 
 <script>
@@ -2800,7 +2974,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt', gfv2: 'tab-gfv2' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt', gfv2: 'tab-gfv2', gle: 'tab-gle' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -4901,6 +5075,233 @@ function gfv2Recalc() {
       noteEl.textContent = `Net GHG reduction accounts for electricity grid emissions in ${region} (${co2LbMwh?.toFixed(0) ?? '—'} lb CO₂e/MWh, eGRID 2023 non-baseload).`;
     }
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GREENER LANDSCAPING EQUIPMENT CALCULATOR
+// Source: Landscaping_Equipment_0513.xlsx
+// ═══════════════════════════════════════════════════════════════
+
+// Equipment data — battery side + gas side (from spreadsheet row 4-24)
+const GLE_EQUIP = {
+  'Riding Zero-Turn Mower 42"':    { battKwh:3.36,  numBatt:2, effLoss:0.1, gasHp:23,   galPerHr:2,          hpCo2:1053.42094  },
+  'Riding Zero-Turn Mower 48"':    { battKwh:24,    numBatt:1, effLoss:0.1, gasHp:23.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Riding Zero-Turn Mower 52"':    { battKwh:24,    numBatt:1, effLoss:0.1, gasHp:25.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Riding Zero-Turn Mower 60"':    { battKwh:16,    numBatt:4, effLoss:0.1, gasHp:25.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Riding Zero-Turn Mower 72-74"': { battKwh:22,    numBatt:1, effLoss:0.1, gasHp:26.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Stand-on Mower 48"':            { battKwh:16,    numBatt:4, effLoss:0.1, gasHp:22,   galPerHr:2,          hpCo2:1053.42094  },
+  'Stand-on Mower 52"':            { battKwh:16,    numBatt:4, effLoss:0.1, gasHp:23.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Stand-on Mower 60"':            { battKwh:24,    numBatt:1, effLoss:0.1, gasHp:26.5, galPerHr:2,          hpCo2:1053.42094  },
+  'Push-Mower 30-32"':             { battKwh:1.344, numBatt:3, effLoss:0.1, gasHp:14.5, galPerHr:0.75,       hpCo2:1117.972504 },
+  'Handheld Blower 350-400 cfm':   { battKwh:0.144, numBatt:1, effLoss:0.1, gasHp:1.07, galPerHr:0.43,       hpCo2:1103.71     },
+  'Backpack Blower 600-650 cfm':   { battKwh:0.42,  numBatt:1, effLoss:0.1, gasHp:3.81, galPerHr:0.43,       hpCo2:726.710072  },
+  'Backpack Blower 650-700 cfm':   { battKwh:0.82,  numBatt:2, effLoss:0.1, gasHp:3.8,  galPerHr:0.43,       hpCo2:726.710072  },
+  'Backpack Blower 750-800 cfm':   { battKwh:1.12,  numBatt:2, effLoss:0.1, gasHp:4,    galPerHr:0.43,       hpCo2:726.710072  },
+  'String Trimmer 16.5"':          { battKwh:0.3384,numBatt:1, effLoss:0.1, gasHp:1.9,  galPerHr:0.66043013, hpCo2:1103.71     },
+  'Hedge Trimmer 24"':             { battKwh:0.2591,numBatt:1, effLoss:0.1, gasHp:1.2,  galPerHr:0.1328125,  hpCo2:1103.71     },
+  'Pole Saw 10"':                  { battKwh:0.2592,numBatt:1, effLoss:0.1, gasHp:1.07, galPerHr:0.15625,    hpCo2:1103.705548 },
+  'Chainsaw 12"':                  { battKwh:0.28,  numBatt:1, effLoss:0.1, gasHp:1.21, galPerHr:0.15850323, hpCo2:1103.71     },
+  'Chainsaw 14"':                  { battKwh:0.216, numBatt:1, effLoss:0.1, gasHp:2.4,  galPerHr:0.15850323, hpCo2:1103.71     },
+  'Chainsaw 16"':                  { battKwh:0.328, numBatt:1, effLoss:0.1, gasHp:2.4,  galPerHr:0.22454624, hpCo2:1103.71     },
+  'Chainsaw 18"':                  { battKwh:0.28,  numBatt:1, effLoss:0.1, gasHp:4.7,  galPerHr:0.29058926, hpCo2:726.71      },
+  'Chainsaw 20"':                  { battKwh:0.328, numBatt:1, effLoss:0.1, gasHp:5.5,  galPerHr:0.29058926, hpCo2:726.71      },
+};
+
+// Table 1: eGRID 2023 non-baseload CO2e (lb/MWh) by region
+// Table 2: EIA Feb 2026 YTD electricity price (cents/kWh) by region
+const GLE_REGIONS = {
+  'NYC/Westchester, NY':            { co2: 977.968,  elec: 20.45 },
+  'Long Island, NY':                { co2: 1319.396, elec: 20.45 },
+  'Upstate New York':               { co2: 911.786,  elec: 20.45 },
+  'Puerto Rico and Virgin Islands': { co2: 1642.029, elec: 26.27 },
+  'New Jersey':                     { co2: 1180.485, elec: 13.35 },
+};
+
+const GLE_SPILL_SRC = 0.0599;  // lb gasoline spillage per gal (from spreadsheet)
+const GLE_RUNOFF    = 0.06;    // runoff delivery fraction (from spreadsheet)
+const GLE_G_TO_LB   = 453.592; // grams per pound
+
+// Override registry — values manually set by the user
+const GLE_OV = {};
+
+const GLE_VAR_DEFS = [
+  { group: 'Equipment Defaults (from equipment table)' },
+  { key:'battKwh',  label:'Battery size — Total Machine', unit:'kWh' },
+  { key:'effLoss',  label:'Charging loss (fraction)',     unit:'e.g. 0.10 = 10%' },
+  { key:'gasHp',    label:'Gas equipment horsepower',     unit:'hp' },
+  { key:'galPerHr', label:'Gallons of gas per hour',      unit:'gal/hr' },
+  { key:'hpCo2',    label:'HP CO₂ constant',              unit:'g/hp·hr' },
+  { group: 'Regional Defaults (from Tables 1 & 2)' },
+  { key:'co2Rate',  label:'Region CO₂e emission rate',    unit:'lb/MWh' },
+  { key:'elecRate', label:'Region electricity price',     unit:'¢/kWh' },
+  { group: 'Spillage Factors (from spreadsheet)' },
+  { key:'spillSrc', label:'Gasoline spillage source factor', unit:'lb/gal' },
+  { key:'runoff',   label:'Runoff delivery fraction',        unit:'fraction' },
+];
+
+function gleGetDefault(key) {
+  const eq  = GLE_EQUIP[document.getElementById('gle-equip').value]  || {};
+  const reg = GLE_REGIONS[document.getElementById('gle-region').value] || {};
+  switch (key) {
+    case 'battKwh':  return eq.battKwh  ?? 0;
+    case 'effLoss':  return eq.effLoss  ?? 0.1;
+    case 'gasHp':    return eq.gasHp    ?? 0;
+    case 'galPerHr': return eq.galPerHr ?? 0;
+    case 'hpCo2':    return eq.hpCo2    ?? 0;
+    case 'co2Rate':  return reg.co2     ?? 0;
+    case 'elecRate': return reg.elec    ?? 0;
+    case 'spillSrc': return GLE_SPILL_SRC;
+    case 'runoff':   return GLE_RUNOFF;
+    default:         return 0;
+  }
+}
+
+function gleVal(key) {
+  return (key in GLE_OV) ? GLE_OV[key] : gleGetDefault(key);
+}
+
+function glePopulateEquipDropdown() {
+  const sel = document.getElementById('gle-equip');
+  if (!sel) return;
+  Object.keys(GLE_EQUIP).forEach(name => {
+    const o = document.createElement('option');
+    o.value = name; o.textContent = name;
+    sel.appendChild(o);
+  });
+}
+
+function gleEquipChanged() { gleRecalc(); }
+function gleRegionChanged() { gleRecalc(); }
+
+function gleRecalc() {
+  const equip  = document.getElementById('gle-equip').value;
+  const region = document.getElementById('gle-region').value;
+  const hours  = parseFloat(document.getElementById('gle-hours').value)     || 0;
+  const gasPpg = parseFloat(document.getElementById('gle-gas-price').value) || 0;
+  const card   = document.getElementById('gle-results');
+
+  if (!equip || !region || hours <= 0 || gasPpg <= 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+
+  const battKwh  = gleVal('battKwh');
+  const effLoss  = gleVal('effLoss');
+  const gasHp    = gleVal('gasHp');
+  const galPerHr = gleVal('galPerHr');
+  const hpCo2    = gleVal('hpCo2');
+  const co2Rate  = gleVal('co2Rate');   // lb/MWh
+  const elecRate = gleVal('elecRate');  // cents/kWh
+  const spillSrc = gleVal('spillSrc');
+  const runoff   = gleVal('runoff');
+
+  // Energy used per year for battery side (kWh/yr)
+  const energy = battKwh * hours * (1 + effLoss);
+
+  // Battery side
+  const battCost = energy * (elecRate / 100);
+  const battCo2  = energy * co2Rate * 0.001; // kWh × lb/MWh × MWh/kWh
+
+  // Gasoline side
+  const gasCost  = galPerHr * hours * gasPpg;
+  const gasCo2   = gasHp * hours * hpCo2 / GLE_G_TO_LB;
+
+  // Spillage reduced
+  const spillRed = galPerHr * hours * spillSrc * runoff;
+
+  // Cost % change (positive = battery cheaper)
+  const costPct  = gasCost > 0 ? ((gasCost - battCost) / gasCost) * 100 : 0;
+
+  // Render
+  document.getElementById('gle-r-batt-cost').textContent = '$' + fmt(battCost);
+  document.getElementById('gle-r-batt-co2').textContent  = fmt(battCo2);
+  document.getElementById('gle-r-gas-cost').textContent  = '$' + fmt(gasCost);
+  document.getElementById('gle-r-gas-co2').textContent   = fmt(gasCo2);
+  document.getElementById('gle-r-spill').textContent     = fmt(Math.max(0, spillRed));
+
+  const pctEl = document.getElementById('gle-r-cost-pct');
+  const lblEl = document.getElementById('gle-r-cost-pct-lbl');
+  pctEl.textContent = Math.abs(costPct).toFixed(1) + '%';
+  if (costPct >= 0) {
+    pctEl.style.color = '';
+    lblEl.textContent = 'Cost Reduction';
+  } else {
+    pctEl.style.color = '#c0392b';
+    lblEl.textContent = 'Cost Increase';
+  }
+
+  const noteEl = document.getElementById('gle-note');
+  if (noteEl) {
+    const co2Diff = gasCo2 - battCo2;
+    noteEl.textContent = co2Diff >= 0
+      ? `Switching to battery-powered ${equip} avoids ~${fmt(co2Diff)} lb CO₂e and ~${fmt(spillRed)} lb of gasoline spillage per year in ${region}.`
+      : `⚠️ In ${region}, grid CO₂ intensity (${co2Rate.toFixed(0)} lb/MWh) makes battery emissions higher than gasoline for this equipment/hours scenario.`;
+  }
+}
+
+// ── Override modal ──────────────────────────────────────────────────────────
+function gleBuildModal() {
+  let html = '';
+  GLE_VAR_DEFS.forEach(v => {
+    if (v.group) {
+      html += `<tr class="var-group"><td colspan="4">${v.group}</td></tr>`;
+      return;
+    }
+    const def     = gleGetDefault(v.key);
+    const cur     = GLE_OV[v.key] ?? '';
+    const changed = v.key in GLE_OV ? ' changed' : '';
+    const defDisp = (typeof def === 'number') ? (def === 0 ? '—' : (def < 1 ? def.toString() : def.toFixed(2))) : def;
+    html += `<tr>
+      <td class="var-name">${v.label}</td>
+      <td class="var-default">${defDisp}</td>
+      <td><input class="var-input${changed}" id="gle-ov-${v.key}"
+            type="number" min="0" step="any" placeholder="${defDisp}" value="${cur}"
+            oninput="this.classList.toggle('changed',this.value.trim()!=='')"></td>
+      <td class="var-unit">${v.unit}</td>
+    </tr>`;
+  });
+  document.getElementById('gle-var-tbody').innerHTML = html;
+}
+
+function gleOpenModal() {
+  gleBuildModal();
+  document.getElementById('gle-override-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function gleCloseModal() {
+  document.getElementById('gle-override-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function gleHandleOverlayClick(e) { if (e.target === e.currentTarget) gleCloseModal(); }
+
+function gleApplyAndClose() {
+  GLE_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const input = document.getElementById(`gle-ov-${v.key}`);
+    const raw   = input ? input.value.trim() : '';
+    const num   = parseFloat(raw);
+    if (raw !== '' && !isNaN(num) && num >= 0) GLE_OV[v.key] = num;
+    else delete GLE_OV[v.key];
+  });
+  document.getElementById('gle-override-btn').classList.toggle('active', Object.keys(GLE_OV).length > 0);
+  gleRecalc();
+  gleCloseModal();
+}
+function gleResetOverrides() {
+  Object.keys(GLE_OV).forEach(k => delete GLE_OV[k]);
+  GLE_VAR_DEFS.filter(v => v.key).forEach(v => {
+    const el = document.getElementById(`gle-ov-${v.key}`);
+    if (el) { el.value = ''; el.classList.remove('changed'); }
+  });
+  document.getElementById('gle-override-btn').classList.remove('active');
+  gleRecalc();
+}
+
+// Populate the equipment dropdown on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', glePopulateEquipDropdown);
+} else {
+  glePopulateEquipDropdown();
 }
 
 </script>
