@@ -2661,37 +2661,44 @@
 
     <!-- Results -->
     <div class="results-card" id="gle-results" style="display:none">
-      <div class="results-head">Annual Benefits of Switching to Battery-Powered Equipment</div>
+      <div class="results-head">Annual Operating Cost &amp; CO&#8322;e Emissions Comparison</div>
 
-      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:10px 0 8px">Battery-Powered Equipment</div>
-      <div class="metrics-row" style="margin-bottom:20px">
-        <div class="metric">
-          <div class="metric-val" id="gle-r-batt-cost">&#8212;</div>
-          <div class="metric-label">Annual Cost</div>
-          <div class="metric-unit">$ / year</div>
+      <!-- Part 1: Side-by-side comparison -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+
+        <!-- Battery-Powered column -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:10px;text-align:center">&#x1F50B; Battery-Powered</div>
+          <div class="metric" style="margin-bottom:10px">
+            <div class="metric-val" id="gle-r-batt-cost">&#8212;</div>
+            <div class="metric-label">Annual Operating Cost</div>
+            <div class="metric-unit">$ / year</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" id="gle-r-batt-co2">&#8212;</div>
+            <div class="metric-label">Annual CO&#8322;e Emissions</div>
+            <div class="metric-unit">lb / year</div>
+          </div>
         </div>
-        <div class="metric">
-          <div class="metric-val" id="gle-r-batt-co2">&#8212;</div>
-          <div class="metric-label">Annual CO&#8322;e Emissions</div>
-          <div class="metric-unit">lb / year</div>
+
+        <!-- Gasoline-Powered column -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:10px;text-align:center">&#x26FD; Gasoline-Powered</div>
+          <div class="metric" style="margin-bottom:10px">
+            <div class="metric-val" id="gle-r-gas-cost">&#8212;</div>
+            <div class="metric-label">Annual Operating Cost</div>
+            <div class="metric-unit">$ / year</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" id="gle-r-gas-co2">&#8212;</div>
+            <div class="metric-label">Annual CO&#8322;e Emissions</div>
+            <div class="metric-unit">lb / year</div>
+          </div>
         </div>
       </div>
 
-      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Gasoline-Powered Equipment</div>
-      <div class="metrics-row" style="margin-bottom:20px">
-        <div class="metric">
-          <div class="metric-val" id="gle-r-gas-cost">&#8212;</div>
-          <div class="metric-label">Annual Cost</div>
-          <div class="metric-unit">$ / year</div>
-        </div>
-        <div class="metric">
-          <div class="metric-val" id="gle-r-gas-co2">&#8212;</div>
-          <div class="metric-label">Annual CO&#8322;e Emissions</div>
-          <div class="metric-unit">lb / year</div>
-        </div>
-      </div>
-
-      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Net Benefits of Switching</div>
+      <!-- Part 2: Benefits of switching -->
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:20px 0 8px">Benefits of Switching to Battery-Powered Equipment</div>
       <div class="metrics-row">
         <div class="metric">
           <div class="metric-val" id="gle-r-spill">&#8212;</div>
@@ -2700,8 +2707,13 @@
         </div>
         <div class="metric">
           <div class="metric-val" id="gle-r-cost-pct">&#8212;</div>
-          <div class="metric-label" id="gle-r-cost-pct-lbl">Cost Reduction</div>
-          <div class="metric-unit">vs gasoline</div>
+          <div class="metric-label" id="gle-r-cost-pct-lbl">Annual Cost Reduction</div>
+          <div class="metric-unit">vs gasoline operating cost</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gle-r-co2-diff">&#8212;</div>
+          <div class="metric-label" id="gle-r-co2-diff-lbl">Annual CO&#8322;e Reduction</div>
+          <div class="metric-unit">lb / year</div>
         </div>
       </div>
 
@@ -2718,9 +2730,11 @@
         <div><span class="eq-lhs">Battery CO&#8322;e (lb/yr)&nbsp;</span> = Battery&nbsp;kWh &#215; Hours/yr &#215; (1&nbsp;+&nbsp;Charging Loss) &#215; Region CO&#8322;e (lb/MWh) &#215; 0.001</div>
         <div><span class="eq-lhs">Gas Cost ($/yr)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> = Gallons of Gas/Hr &#215; Hours/yr &#215; Gas Price ($/gal)</div>
         <div><span class="eq-lhs">Gas CO&#8322;e (lb/yr)&nbsp;&nbsp;&nbsp;</span> = Gas HP &#215; Hours/yr &#215; HP CO&#8322; Constant (g/hp&middot;hr) &#247; 453.592</div>
+        <div><span class="eq-lhs">CO&#8322;e Reduction (lb/yr)</span> = Gas CO&#8322;e &#8722; Battery CO&#8322;e (positive = reduction; negative = increase)</div>
         <div><span class="eq-lhs">Spillage Reduced (lb/yr)</span> = Gallons of Gas/Hr &#215; Hours/yr &#215; 0.0599 (lb/gal) &#215; 0.06 (runoff fraction)</div>
       </div>
       <ul>
+        <li><b>Cost definitions:</b> The costs shown in this tab represent <b>operating costs only</b> — they do not include total maintenance cost or total ownership cost. For battery-powered equipment, the cost shown is the <b>electricity cost for charging the battery only</b>. For gasoline-powered equipment, the cost shown is the <b>cost of gasoline used to run the equipment only</b>.</li>
         <li><b>Equipment data:</b> Massachusetts Commercial Battery-Powered Electric Lawn &amp; Garden Equipment Calculator (<a href="https://www.mass.gov/doc/commercial-battery-powered-electric-lawn-and-garden-equipment-calculator-8823" target="_blank" rel="noopener">mass.gov</a>).</li>
         <li><b>Region CO&#8322;e emission rate (Table 1):</b> EPA eGRID 2023 annual non-baseload output emission rates (<a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">EPA eGRID Detailed Data</a>).</li>
         <li><b>Region electricity price (Table 2):</b> EIA Electric Power Monthly, February 2026 YTD (<a href="https://www.eia.gov/electricity/monthly/" target="_blank" rel="noopener">EIA</a>).</li>
@@ -5213,11 +5227,15 @@ function gleRecalc() {
   // Cost % change (positive = battery cheaper)
   const costPct  = gasCost > 0 ? ((gasCost - battCost) / gasCost) * 100 : 0;
 
-  // Render
+  const co2Diff = gasCo2 - battCo2;
+
+  // Render Part 1: comparison
   document.getElementById('gle-r-batt-cost').textContent = '$' + fmt(battCost);
   document.getElementById('gle-r-batt-co2').textContent  = fmt(battCo2);
   document.getElementById('gle-r-gas-cost').textContent  = '$' + fmt(gasCost);
   document.getElementById('gle-r-gas-co2').textContent   = fmt(gasCo2);
+
+  // Render Part 2: benefits
   document.getElementById('gle-r-spill').textContent     = fmt(Math.max(0, spillRed));
 
   const pctEl = document.getElementById('gle-r-cost-pct');
@@ -5225,17 +5243,27 @@ function gleRecalc() {
   pctEl.textContent = Math.abs(costPct).toFixed(1) + '%';
   if (costPct >= 0) {
     pctEl.style.color = '';
-    lblEl.textContent = 'Cost Reduction';
+    lblEl.textContent = 'Annual Cost Reduction';
   } else {
     pctEl.style.color = '#c0392b';
-    lblEl.textContent = 'Cost Increase';
+    lblEl.textContent = 'Annual Cost Increase';
+  }
+
+  const co2DiffEl  = document.getElementById('gle-r-co2-diff');
+  const co2DiffLbl = document.getElementById('gle-r-co2-diff-lbl');
+  co2DiffEl.textContent = fmt(Math.abs(co2Diff));
+  if (co2Diff >= 0) {
+    co2DiffEl.style.color = '';
+    co2DiffLbl.textContent = 'Annual CO₂e Reduction';
+  } else {
+    co2DiffEl.style.color = '#c0392b';
+    co2DiffLbl.textContent = 'Annual CO₂e Increase';
   }
 
   const noteEl = document.getElementById('gle-note');
   if (noteEl) {
-    const co2Diff = gasCo2 - battCo2;
     noteEl.textContent = co2Diff >= 0
-      ? `Switching to battery-powered ${equip} avoids ~${fmt(co2Diff)} lb CO₂e and ~${fmt(spillRed)} lb of gasoline spillage per year in ${region}.`
+      ? `Switching to battery-powered ${equip} reduces CO₂e by ~${fmt(co2Diff)} lb/yr and avoids ~${fmt(spillRed)} lb of gasoline spillage per year in ${region}.`
       : `⚠️ In ${region}, grid CO₂ intensity (${co2Rate.toFixed(0)} lb/MWh) makes battery emissions higher than gasoline for this equipment/hours scenario.`;
   }
 }
