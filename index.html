@@ -927,6 +927,77 @@
     .fleet-add-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:8px 16px; background:var(--green-mid); color:#fff; border:none; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
     .fleet-add-btn:hover { background:var(--green-dark); }
     .fleet-elec-info { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.4; }
+
+    /* ── Splant / shared form layout (restored after water-tab removal) ──────── */
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin: 22px 0 12px;
+      letter-spacing: -.1px;
+    }
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--teal);
+      border-radius: 2px;
+    }
+    .section-label.part-bonus::before { background: #d4af37; }
+    .section-part-num {
+      display: inline-block;
+      background: var(--green-mid);
+      color: #fff;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-right: 6px;
+    }
+    .section-part-num.bonus { background: #d4af37; }
+    .card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 540px) { .row2 { grid-template-columns: 1fr; } }
+    .field-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .num-input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .num-input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+    }
   </style>
 </head>
 <body>
@@ -1804,7 +1875,7 @@
     </p>
 
     <!-- ── Part 1: Inputs ── -->
-    <p class="section-label">Part 1 — Project Information</p>
+    <p class="section-label"><span class="section-part-num">Part 1</span>Project Information</p>
     <div class="card">
 
       <div class="row2" style="margin-bottom:16px">
@@ -1848,7 +1919,7 @@
           </select>
         </div>
         <div>
-          <label class="field-label" for="splant-mulch">5. Site Will Be Mulched (2-inch depth)?</label>
+          <label class="field-label" for="splant-mulch">5. Will the site be mulched (approx. 2-inch depth)?</label>
           <select class="leqp-select" id="splant-mulch" onchange="splantRecalc()">
             <option value="no">No</option>
             <option value="yes">Yes — apply 17% soil moisture retention factor (ISA literature review)</option>
@@ -1857,7 +1928,7 @@
       </div>
 
       <div>
-        <label class="field-label" for="splant-fert">5. Will Synthetic Fertilizer Be Applied to Maintain This Planting?</label>
+        <label class="field-label" for="splant-fert">6. Will synthetic fertilizer be applied to maintain this planting?</label>
         <select class="leqp-select" id="splant-fert" style="max-width:520px" onchange="splantRecalc()">
           <option value="yes">Yes — compare fertilizer needs to turf baseline</option>
           <option value="no">No — 100% supplemental fertilizer reduction (designed N = 0)</option>
@@ -1878,7 +1949,7 @@
 
       <!-- ── Part 2: Irrigation ── -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px">
-        <p class="section-label" style="margin:0">Part 2 — Supplemental Irrigation Reduction</p>
+        <p class="section-label" style="margin:0"><span class="section-part-num">Part 2</span>Supplemental Irrigation Reduction</p>
         <button class="override-btn" id="splant-override-btn" onclick="splantOpenModal()">
           <span class="override-dot"></span>
           ✎ Override Assumptions
@@ -1924,7 +1995,7 @@
       </div>
 
       <!-- ── Part 3: Fertilizer ── -->
-      <p class="section-label">Part 3 — Supplemental Fertilizer Reduction</p>
+      <p class="section-label"><span class="section-part-num">Part 3</span>Supplemental Fertilizer Reduction</p>
       <p style="font-size:12px; color:var(--muted); margin-bottom:12px">
         Annual N (lbs N/yr) = (Area&nbsp;÷&nbsp;1,000)&nbsp;×&nbsp;N&nbsp;Factor &ensp;|&ensp;
         N Runoff (lbs/yr) = Annual N&nbsp;×&nbsp;R (soil runoff fraction)
@@ -1979,7 +2050,7 @@
       </div>
 
       <!-- ── Part 4 (Bonus): Plastic ── -->
-      <p class="section-label">(Bonus) Part 4 — Plastic Container Reduction</p>
+      <p class="section-label part-bonus"><span class="section-part-num bonus">Bonus · Part 4</span>Plastic Container Reduction</p>
       <p style="font-size:12.5px; color:var(--muted); margin-bottom:14px">
         Estimate plastic avoided by sourcing plants as bare root instead of plastic containers.
         Enter plant spacing and the percentage you plan to source bare root.
@@ -2080,8 +2151,8 @@
         <li><b>Part 3 — Supplemental Fertilizer:</b> Annual N (lbs N/yr) = (Area sf ÷ 1,000) × NF. N Runoff (lbs/yr) = Annual N × R, where R = fraction of applied N converted to surface runoff by NRCS Hydrologic Soil Group (Watershed Treatment Model, CWP 2010). Turf NF = 4.0 lbs N/1,000 sf/yr. If no synthetic fertilizer selected: designed N = 0 (100% reduction).</li>
         <li><b>Part 4 — Plastic Reduction:</b> # Plants = Area ÷ [0.866 × (spacing in ÷ 12)²] (triangular grid). Container plants: 0.38 lbs plastic/plant. Seedlings/plugs: 0.48 lbs/72-cell tray (A.M. Leonard Horticultural Tool Supply). Plastic avoided = % bare root × total plastic.</li>
         <li><b>Plant Factors (PF) and Nitrogen Application Factors (NF)</b> are derived from an informal literature review by CWP. Full background, citations, and methodology are available in the
-          <a href="https://github.com/cwp-org/p2-calculator/blob/main/Landscape%20Calculator%20Background%20Research.docx"
-             target="_blank" rel="noopener">Landscape Calculator Background Research</a> document.</li>
+          <a href="https://raw.githubusercontent.com/cwp-org/p2-calculator/main/Landscape%20Calculator%20Background%20Research.docx"
+             target="_blank" rel="noopener" download>Landscape Calculator Background Research (download .docx)</a> document.</li>
         <li><b>Mulch moisture retention (17%):</b> ISA Arboriculture literature review (2025) — <em>Does Excess Mulch Depth lead to poor tree growth and condition?</em></li>
         <li><b>NRCS Hydrologic Soil Group N runoff fractions:</b> A = 0.75%, B = 2.5%, C = 17.5%, D = 22.5% (CWP Watershed Treatment Model, 2010).</li>
         <li><b>Additional sources:</b> Rutgers NJAES FS633; Purdue University Turfgrass Science; WUCOLS Plant Factor Database (UC ANR); EPA WaterSense Water Budget Tool; NRCS Hydrologic Soil Groups.</li>
@@ -3157,6 +3228,7 @@ async function waterLookupZip(zip) {
 
 function waterSetZipStatus(cls, msg) {
   const el = document.getElementById('water-zip-status');
+  if (!el) return;  // Water tab was removed; status element may not exist
   el.className = 'water-zip-status' + (cls ? ' ' + cls : '');
   el.textContent = msg;
 }
