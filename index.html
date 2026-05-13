@@ -1360,6 +1360,7 @@
           <option value="OK">Oklahoma (OK)</option>
           <option value="OR">Oregon (OR)</option>
           <option value="PA">Pennsylvania (PA)</option>
+          <option value="PR">Puerto Rico (PR)</option>
           <option value="RI">Rhode Island (RI)</option>
           <option value="SC">South Carolina (SC)</option>
           <option value="SD">South Dakota (SD)</option>
@@ -1368,6 +1369,7 @@
           <option value="UT">Utah (UT)</option>
           <option value="VA">Virginia (VA)</option>
           <option value="VT">Vermont (VT)</option>
+          <option value="VI">U.S. Virgin Islands (VI)</option>
           <option value="WA">Washington (WA)</option>
           <option value="WI">Wisconsin (WI)</option>
           <option value="WV">West Virginia (WV)</option>
@@ -1457,6 +1459,11 @@
           <div class="leqp-sav-val neu" id="leqp-r-co2-sav">—</div>
           <div id="leqp-r-co2-pct"></div>
         </div>
+        <div class="leqp-sav-cell">
+          <div class="leqp-sav-label">Gasoline Spillage Reduction</div>
+          <div class="leqp-sav-val neu" id="leqp-r-spill">—</div>
+          <div id="leqp-r-spill-note" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+        </div>
       </div>
 
       <!-- Breakdown toggle -->
@@ -1502,6 +1509,8 @@
         <li><b>Gas CO₂ formula:</b> Gas HP × Hours/yr × HP CO₂ Constant (g/hp·hr) ÷ 453.592 g/lb. HP CO₂ constants derived from equipment emission factors.</li>
         <li><b>State electricity prices</b> (¢/kWh, Feb 2026 YTD by sector — Residential, Commercial, Industrial, All Sectors): <a href="https://www.eia.gov/electricity/sales_revenue_price/" target="_blank" rel="noopener">U.S. EIA Table 5.6.b</a>.</li>
         <li><b>State grid CO₂ equivalent emission rates</b> (lb/MWh, non-baseload, 2023): <a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">EPA eGRID 2023 Detailed Data</a>.</li>
+        <li><b>Gasoline Spillage Reduction (lb/yr):</b> = Gallons of Gas Per Hour × Hours Used Per Year × 0.0599 lb/gal × 0.06 runoff delivery fraction. 0.0599 lb/gal = sum of refueling spillage (0.0375), pump dispensing (0.0007), and transport spillage (0.0217) for residential portable fuel containers; sources: <a href="https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P100021U.txt" target="_blank" rel="noopener">EPA NONROAD/PFC</a>, <a href="https://www.epa.gov/sites/default/files/2020-09/documents/5.2_transportation_and_marketing_of_petroleum_liquids.pdf" target="_blank" rel="noopener">EPA AP-42 §5.2</a>, <a href="https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=P1004KS7.txt" target="_blank" rel="noopener">EPA PFC</a>. The 6% runoff delivery fraction is the screening-level petroleum runoff proxy from the <a href="https://apps.ecology.wa.gov/publications/publications/1103055.pdf" target="_blank" rel="noopener">Puget Sound toxics loading assessment</a>.</li>
+        <li><b>Puerto Rico &amp; U.S. Virgin Islands:</b> Electricity rates not available in EIA Table 5.6.b; calculator uses U.S. average rate across all states (R: 18.15, C: 14.74, I: 11.39, A: 15.20 ¢/kWh) for both territories. Grid CO₂ rate: Puerto Rico uses eGRID 2023 value (1,642.029 lb/MWh); USVI uses U.S. average (1,366.670 lb/MWh) since eGRID does not report USVI separately.</li>
         <li>Positive cost/CO₂ change = savings from switching to battery. Negative = increase. Results represent annual impacts for the hours entered.</li>
       </ul>
     </div>
@@ -3452,6 +3461,8 @@ const LEQP_STATES = {
   WI:{ name:'Wisconsin',            co2:1824.162, elec:{R:18.44,C:13.51,I: 9.30,A:13.88} },
   WV:{ name:'West Virginia',        co2:2165.219, elec:{R:14.60,C:11.67,I: 8.37,A:11.71} },
   WY:{ name:'Wyoming',              co2:2373.731, elec:{R:12.94,C: 9.71,I: 8.83,A: 9.95} },
+  PR:{ name:'Puerto Rico',          co2:1642.029, elec:{R:18.15,C:14.74,I:11.39,A:15.20}, elecFallback:true },
+  VI:{ name:'U.S. Virgin Islands',  co2:1366.670, elec:{R:18.15,C:14.74,I:11.39,A:15.20}, elecFallback:true, co2Fallback:true },
 };
 
 const LEQP_OV = {};
@@ -3518,8 +3529,10 @@ function leqpRecalc() {
   // Battery side
   document.getElementById('leqp-r-batt-cost').textContent = fmtCost(costBatt) + '/yr';
   document.getElementById('leqp-r-batt-co2').textContent  = fmt(co2Batt) + ' lb CO₂e/yr';
-  document.getElementById('leqp-elec-note').textContent   =
-    `${elecRate.toFixed(2)} ¢/kWh (${sectorLabel}, ${LEQP_STATES[sAbbr]?.name ?? sAbbr})`;
+  const stInfo = LEQP_STATES[sAbbr] || {};
+  let elecNoteText = `${elecRate.toFixed(2)} ¢/kWh (${sectorLabel}, ${stInfo.name ?? sAbbr})`;
+  if (stInfo.elecFallback) elecNoteText += ' — U.S. average (no state-specific data)';
+  document.getElementById('leqp-elec-note').textContent = elecNoteText;
 
   // Gas side
   document.getElementById('leqp-r-gas-cost').textContent  = fmtCost(costGas) + '/yr';
@@ -3542,6 +3555,15 @@ function leqpRecalc() {
   savCo2El.textContent = (co2Sav >= 0 ? '' : '−') + fmt(Math.abs(co2Sav)) + ' lb/yr';
   pctCo2El.innerHTML = `<span class="leqp-pct ${co2Cls}">${co2Sav >= 0 ? '▼' : '▲'} ${Math.abs(co2Pct).toFixed(1)}% ${co2Sav >= 0 ? 'CO₂ reduction' : 'CO₂ increase'}</span>`;
 
+  // Gasoline Spillage Reduction (lb/yr)
+  // = Gallons of Gas Per Hour × Total Hours Used Per Year × 0.0599 lb/gal × 0.06 runoff fraction
+  const spillRedux = galPerHr * hours * 0.0599 * 0.06;
+  const spillEl    = document.getElementById('leqp-r-spill');
+  const spillNote  = document.getElementById('leqp-r-spill-note');
+  spillEl.className   = 'leqp-sav-val pos';
+  spillEl.textContent = fmt(spillRedux) + ' lb/yr';
+  spillNote.textContent = `From eliminating ${fmt(galPerHr * hours)} gal/yr of gasoline use`;
+
   // Breakdown table
   const rows = [
     ['Battery capacity per unit (kWh)', battKwh.toFixed(4),    '—'],
@@ -3554,6 +3576,8 @@ function leqpRecalc() {
     ['Gas HP',                          '—',                    gasHp.toFixed(2)],
     ['Annual Cost',                     fmtCost(costBatt),      fmtCost(costGas)],
     ['Annual CO₂ (lb)',                 fmt(co2Batt),           fmt(co2Gas)],
+    ['Annual Gas Used (gal)',           '0',                    fmt(galPerHr * hours)],
+    ['Gasoline Spillage Reduction',     fmt(spillRedux) + ' lb/yr', 'Gallons × 0.0599 × 0.06'],
   ];
 
   document.getElementById('leqp-bk-rows').innerHTML = rows.map(([label, batt, gas]) =>
@@ -3565,13 +3589,14 @@ function leqpClearResults() {
   ['leqp-r-batt-cost','leqp-r-batt-co2','leqp-r-gas-cost','leqp-r-gas-co2'].forEach(id => {
     document.getElementById(id).textContent = '—';
   });
-  ['leqp-r-cost-sav','leqp-r-co2-sav'].forEach(id => {
+  ['leqp-r-cost-sav','leqp-r-co2-sav','leqp-r-spill'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'leqp-sav-val neu';
   });
   document.getElementById('leqp-r-cost-pct').innerHTML = '';
   document.getElementById('leqp-r-co2-pct').innerHTML  = '';
+  document.getElementById('leqp-r-spill-note').textContent = '';
   document.getElementById('leqp-elec-note').textContent = '';
   document.getElementById('leqp-bk-rows').innerHTML =
     '<tr class="empty-row"><td colspan="3">Select equipment, state, and enter hours to see breakdown</td></tr>';
