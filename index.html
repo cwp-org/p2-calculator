@@ -1015,6 +1015,7 @@
   <button class="tab-btn"        role="tab" onclick="switchTab('leqp',this)">Landscaping Equipment</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('splant',this)">Sustainable Planting</button>
   <button class="tab-btn"        role="tab" onclick="switchTab('wrsalt',this)">Winter Road Salt</button>
+  <button class="tab-btn"        role="tab" onclick="switchTab('gfv2',this)">Greener Fleets</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -2425,6 +2426,167 @@
     </div>
   </div><!-- /panel-inner -->
 </div><!-- /tab-wrsalt -->
+<!-- ════════════════════════════════════════════════════════
+     TAB: GREENER FLEETS
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-gfv2" role="tabpanel">
+  <div class="panel-inner">
+    <p class="panel-title">Greener Fleets Calculator</p>
+    <p class="panel-desc">
+      Add the vehicles you plan to replace with hybrid or electric alternatives.
+      For each vehicle, select the type, number, annual miles, and replacement type (Hybrid or Electric&nbsp;EV).
+      The calculator estimates annual changes in fuel use, petroleum hydrocarbon runoff,
+      greenhouse gas emissions, and fuel/electricity cost savings.
+    </p>
+
+    <!-- Inputs: region, fuel prices, biodiesel -->
+    <div class="input-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:20px">
+
+      <div class="input-card">
+        <span class="ic-icon">&#128205;</span>
+        <div class="ic-label">Region (electricity rates &amp; grid emissions)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <select id="gfv2-region"
+                  style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px"
+                  onchange="gfv2Recalc()">
+            <option value="">&#8212; Select Region &#8212;</option>
+            <option>NYC/Westchester, NY</option>
+            <option>Long Island, NY</option>
+            <option>Upstate New York</option>
+            <option>Puerto Rico and Virgin Islands</option>
+            <option>New Jersey</option>
+          </select>
+        </div>
+        <div id="gfv2-elec-info" class="fleet-elec-info"></div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#9981;</span>
+        <div class="ic-label">Gasoline Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gfv2-gas-price" placeholder="e.g. 3.00" min="0" step="0.001"
+                 oninput="gfv2Recalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#9981;</span>
+        <div class="ic-label">Diesel Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gfv2-diesel-price" placeholder="e.g. 3.50" min="0" step="0.001"
+                 oninput="gfv2Recalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#9981;</span>
+        <div class="ic-label">Biodiesel Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gfv2-biodiesel-price" placeholder="e.g. 3.50" min="0" step="0.001"
+                 oninput="gfv2Recalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">&#127807;</span>
+        <div class="ic-label">Biodiesel Change (gal/yr)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="gfv2-biodiesel-change" value="0" step="1"
+                 oninput="gfv2Recalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.4">Positive&nbsp;= biodiesel reduced. Enter manually if biodiesel substitution applies.</div>
+      </div>
+    </div>
+
+    <!-- Vehicle table -->
+    <p class="wrs-sec-label" style="margin-bottom:10px">Fleet Vehicles Being Replaced</p>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="fleet-tbl" id="gfv2-table">
+        <thead>
+          <tr>
+            <th>Vehicle Type</th>
+            <th>Count</th>
+            <th>Miles / Year<br><span style="font-weight:400;font-size:11px">(per vehicle)</span></th>
+            <th>Replacement</th>
+            <th style="width:36px"></th>
+          </tr>
+        </thead>
+        <tbody id="gfv2-tbody">
+          <tr id="gfv2-empty-row">
+            <td colspan="5" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">
+              Click &#8220;+ Add Vehicle&#8221; below to begin
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="fleet-add-btn" onclick="gfv2AddRow()">+ Add Vehicle</button>
+
+    <!-- Results -->
+    <div class="results-card" id="gfv2-results" style="display:none;margin-top:28px">
+      <div class="results-head">Estimated Annual Benefits from Fleet Replacement</div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:10px 0 8px">Fuel Use Changes</div>
+      <div class="metrics-row" style="margin-bottom:20px">
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-gas">&#8212;</div>
+          <div class="metric-label">Gasoline Reduced</div>
+          <div class="metric-unit">gal / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-diesel">&#8212;</div>
+          <div class="metric-label">Diesel Reduced</div>
+          <div class="metric-unit">gal / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-elec">&#8212;</div>
+          <div class="metric-label">Electricity Added (EVs)</div>
+          <div class="metric-unit">kWh / year</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px">Environmental &amp; Cost Impact</div>
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-hc">&#8212;</div>
+          <div class="metric-label">HC Runoff Reduction</div>
+          <div class="metric-unit">lbs / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-ghg">&#8212;</div>
+          <div class="metric-label">Net GHG Reduction</div>
+          <div class="metric-unit">MTCO&#8322;e / year</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="gfv2-r-cost">&#8212;</div>
+          <div class="metric-label">Net Cost Savings</div>
+          <div class="metric-unit">$ / year</div>
+        </div>
+      </div>
+
+      <div id="gfv2-note" style="font-size:11px;color:var(--muted);margin-top:14px;padding-top:10px;border-top:1px solid var(--border);line-height:1.5"></div>
+    </div>
+
+    <!-- Assumptions -->
+    <div class="assumptions" style="margin-top:28px">
+      <div class="assumptions-head">
+        <span class="assumptions-title">Assumptions &amp; Data Sources</span>
+      </div>
+      <ul>
+        <li><b>Vehicle Fuel Efficiency:</b> Conventional efficiency from U.S. DOE &#8220;Average Fuel Economy by Major Vehicle Category&#8221; (<a href="https://afdc.energy.gov/data/10310" target="_blank" rel="noopener">AFDC 10310</a>). Hybrid assumes 35% improvement. EV efficiency: Motorcycles from Zero Motorcycles; Cars/Light Trucks/Transit Vanpool from EPA 2025 Automotive Trends Report Fig.&nbsp;4.20; School &amp; Transit Buses from EPA; Class&nbsp;8 Trucks from NREL (2025).</li>
+        <li><b>Fuel Costs:</b> User-entered ($/gal) for gasoline, diesel, and biodiesel. Electricity price from EIA data (February 2026 YTD) by region.</li>
+        <li><b>Petroleum Hydrocarbon Runoff:</b> Fuel densities &#8212; Gasoline 6.1&nbsp;lb/gal, Diesel 7.1&nbsp;lb/gal, Biodiesel 6.39&nbsp;lb/gal. Inflation factor 4.21&#215; accounts for motor-oil spills proportional to fuel use (Puget Sound petroleum release data, <a href="https://apps.ecology.wa.gov/publications/documents/1103055.pdf" target="_blank" rel="noopener">WA Ecology 2011</a>). Runoff delivery factor 0.0001 applied.</li>
+        <li><b>GHG Emission Factors:</b> Gasoline 8.81, Diesel 10.24, Biodiesel 9.46&nbsp;kg CO&#8322;e/gal &#8212; EPA P2 GHG Calculator. Electricity: eGRID 2023 non-baseload CO&#8322;e rates (lb/MWh) by region, converted to kg/kWh. Source: <a href="https://www.epa.gov/egrid/detailed-data" target="_blank" rel="noopener">EPA eGRID</a>.</li>
+      </ul>
+    </div>
+
+  </div><!-- /panel-inner -->
+</div><!-- /tab-gfv2 -->
+
 
 <script>
 // ── Item definitions & defaults ───────────────────────────────────────────────
@@ -2638,7 +2800,7 @@ function toggleBreakdown() {
   btn.setAttribute('aria-expanded', open);
 }
 
-const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt' };
+const TAB_IDS = { plastics: 'tab-plastics', fleet: 'tab-fleet', leqp: 'tab-leqp', splant: 'tab-splant', wrsalt: 'tab-wrsalt', gfv2: 'tab-gfv2' };
 function switchTab(key, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -4503,6 +4665,240 @@ function fleetRecalc() {
       noteEl.textContent = `⚠️ Net GHG shown in red — electricity grid emissions in ${st} (${egridLb?.toFixed(0)} lb/MWh) exceed the fuel-combustion savings in this scenario. Consider a larger share of hybrids or check future grid projections.`;
     } else {
       noteEl.textContent = `Net GHG reduction accounts for electricity grid emissions in ${st} (${egridLb?.toFixed(0) ?? '—'} lb CO₂e/MWh, eGRID 2023). ${elecCents === null ? 'Electricity cost not available for this state.' : ''}`;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GREENER FLEETS CALCULATOR
+// Source: GreenFleet_0513.xlsx (Overview + Tables sheets)
+// ═══════════════════════════════════════════════════════════════
+
+const GFV2_VEHICLES = {
+  'Motorcycle':         { fuel:'gasoline', mpg:44,    hybridMpg:59.4,   evMpkWh:10,   evAvail:true  },
+  'Car':                { fuel:'gasoline', mpg:24.4,  hybridMpg:32.94,  evMpkWh:3.1,  evAvail:true  },
+  'Light Truck/Pickup': { fuel:'gasoline', mpg:17.8,  hybridMpg:24.03,  evMpkWh:2.1,  evAvail:true  },
+  'Transit Van':        { fuel:'diesel',   mpg:12.56, hybridMpg:16.956, evMpkWh:2.9,  evAvail:true  },
+  'School Bus':         { fuel:'diesel',   mpg:7.3,   hybridMpg:9.855,  evMpkWh:1.5,  evAvail:true  },
+  'Class 8 Truck':      { fuel:'diesel',   mpg:6.4,   hybridMpg:8.64,   evMpkWh:1.8,  evAvail:true  },
+  'Transit Bus':        { fuel:'diesel',   mpg:3.83,  hybridMpg:5.1705, evMpkWh:1.5,  evAvail:true  },
+  'Refuse Truck':       { fuel:'diesel',   mpg:2.8,   hybridMpg:3.78,   evMpkWh:null, evAvail:false },
+};
+
+// Electricity data — eGRID 2023 CO2e (lb/MWh) + EIA Feb 2026 YTD price (cents/kWh)
+const GFV2_REGIONS = {
+  'NYC/Westchester, NY':            { co2: 977.968,  elec: 20.45 },
+  'Long Island, NY':                { co2: 1319.396, elec: 20.45 },
+  'Upstate New York':               { co2: 911.786,  elec: 20.45 },
+  'Puerto Rico and Virgin Islands': { co2: 1642.029, elec: 26.27 },
+  'New Jersey':                     { co2: 1180.485, elec: 13.35 },
+};
+
+const GFV2_HC  = { gasoline: 6.1, diesel: 7.1, biodiesel: 6.39 }; // lb/gal
+const GFV2_INF = 4.210526315789474; // inflation factor (motor oil spill ratio)
+const GFV2_SPL = 0.0001;            // runoff delivery factor
+const GFV2_GHG = { gasoline: 8.81, diesel: 10.24, biodiesel: 9.46 }; // kg CO2e/gal
+
+let gfv2RowCtr = 0;
+
+function gfv2AddRow() {
+  const rowId = ++gfv2RowCtr;
+  const tbody = document.getElementById('gfv2-tbody');
+  const empty = document.getElementById('gfv2-empty-row');
+  if (empty) empty.remove();
+
+  const vOpts = Object.keys(GFV2_VEHICLES).map(v => `<option value="${v}">${v}</option>`).join('') +
+                `<option value="Custom">Custom Vehicle</option>`;
+  const rOpts = `<option value="hybrid">Hybrid</option><option value="ev">Electric (EV)</option>`;
+  const cs = 'padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top';
+  const ss = 'width:100%;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;background:var(--card-bg);color:var(--text)';
+  const is = 'padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;text-align:right;background:var(--card-bg);color:var(--text)';
+
+  const tr = document.createElement('tr');
+  tr.id = `gfv2-row-${rowId}`;
+  tr.innerHTML = `
+    <td style="${cs};min-width:180px">
+      <select id="gfv2-vtype-${rowId}" style="${ss}" onchange="gfv2VehicleChanged(${rowId})">${vOpts}</select>
+      <div id="gfv2-cust-${rowId}" style="display:none;margin-top:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Custom vehicle inputs:</div>
+        <select id="gfv2-cfuel-${rowId}" style="${ss};margin-bottom:5px" onchange="gfv2Recalc()">
+          <option value="gasoline">Gasoline</option>
+          <option value="diesel">Diesel</option>
+        </select>
+        <input type="number" id="gfv2-cmpg-${rowId}" placeholder="Current mpg" min="0.1" step="any"
+               oninput="gfv2Recalc()" style="${is};width:100%;margin-bottom:5px">
+        <input type="number" id="gfv2-crpl-${rowId}" placeholder="Replacement mpg or mi/kWh" min="0.1" step="any"
+               oninput="gfv2Recalc()" style="${is};width:100%">
+        <div id="gfv2-chnt-${rowId}" style="font-size:10.5px;color:var(--muted);margin-top:3px">mpg for Hybrid &middot; mi/kWh for EV</div>
+      </div>
+    </td>
+    <td style="${cs};width:64px">
+      <input type="number" id="gfv2-cnt-${rowId}" value="1" min="1" step="1"
+             oninput="gfv2Recalc()" style="${is};width:56px">
+    </td>
+    <td style="${cs};width:110px">
+      <input type="number" id="gfv2-mi-${rowId}" placeholder="12000" min="1" step="1"
+             oninput="gfv2Recalc()" style="${is};width:100px">
+    </td>
+    <td style="${cs};min-width:150px">
+      <select id="gfv2-rpl-${rowId}" style="${ss}" onchange="gfv2ReplChanged(${rowId})">${rOpts}</select>
+    </td>
+    <td style="${cs};width:36px;text-align:center">
+      <button onclick="gfv2RemoveRow(${rowId})"
+              style="background:none;border:none;cursor:pointer;font-size:17px;color:var(--muted);padding:2px 4px;border-radius:4px;line-height:1"
+              title="Remove">&times;</button>
+    </td>`;
+  tbody.appendChild(tr);
+  gfv2VehicleChanged(rowId);
+}
+
+function gfv2VehicleChanged(rowId) {
+  const vEl  = document.getElementById(`gfv2-vtype-${rowId}`);
+  const cDiv = document.getElementById(`gfv2-cust-${rowId}`);
+  const rEl  = document.getElementById(`gfv2-rpl-${rowId}`);
+  if (!vEl || !rEl) return;
+  const vtype = vEl.value;
+  if (vtype === 'Custom') {
+    cDiv.style.display = 'block';
+    rEl.querySelectorAll('option').forEach(o => {
+      o.disabled = false;
+      o.textContent = o.value === 'ev' ? 'Electric (EV)' : 'Hybrid';
+    });
+  } else {
+    cDiv.style.display = 'none';
+    const v = GFV2_VEHICLES[vtype];
+    const evOpt = rEl.querySelector('option[value="ev"]');
+    if (v && !v.evAvail) {
+      evOpt.disabled = true; evOpt.textContent = 'Electric (EV) — N/A';
+      if (rEl.value === 'ev') rEl.value = 'hybrid';
+    } else {
+      evOpt.disabled = false; evOpt.textContent = 'Electric (EV)';
+    }
+  }
+  gfv2Recalc();
+}
+
+function gfv2ReplChanged(rowId) {
+  const rEl = document.getElementById(`gfv2-rpl-${rowId}`);
+  const hEl = document.getElementById(`gfv2-chnt-${rowId}`);
+  if (hEl) hEl.textContent = rEl?.value === 'ev' ? 'Enter miles per kWh' : 'Enter mpg (hybrid)';
+  gfv2Recalc();
+}
+
+function gfv2RemoveRow(rowId) {
+  document.getElementById(`gfv2-row-${rowId}`)?.remove();
+  const tbody = document.getElementById('gfv2-tbody');
+  if (!tbody.querySelector('tr[id^="gfv2-row-"]')) {
+    const tr = document.createElement('tr');
+    tr.id = 'gfv2-empty-row';
+    tr.innerHTML = '<td colspan="5" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Click “+ Add Vehicle” below to begin</td>';
+    tbody.appendChild(tr);
+  }
+  gfv2Recalc();
+}
+
+function gfv2Recalc() {
+  const tbody = document.getElementById('gfv2-tbody');
+  const rows  = tbody.querySelectorAll('tr[id^="gfv2-row-"]');
+  const card  = document.getElementById('gfv2-results');
+  if (!rows.length) { card.style.display = 'none'; return; }
+
+  let gasChg = 0, dslChg = 0, elecChg = 0, anyData = false;
+
+  rows.forEach(tr => {
+    const id    = tr.id.replace('gfv2-row-', '');
+    const vtype = document.getElementById(`gfv2-vtype-${id}`)?.value;
+    const count = parseFloat(document.getElementById(`gfv2-cnt-${id}`)?.value)  || 0;
+    const miles = parseFloat(document.getElementById(`gfv2-mi-${id}`)?.value)   || 0;
+    const repl  = document.getElementById(`gfv2-rpl-${id}`)?.value;
+    if (!vtype || count <= 0 || miles <= 0) return;
+    const totalMi = miles * count;
+
+    if (vtype === 'Custom') {
+      const fuel = document.getElementById(`gfv2-cfuel-${id}`)?.value || 'gasoline';
+      const cmpg = parseFloat(document.getElementById(`gfv2-cmpg-${id}`)?.value) || 0;
+      const reff = parseFloat(document.getElementById(`gfv2-crpl-${id}`)?.value) || 0;
+      if (cmpg <= 0 || reff <= 0) return;
+      anyData = true;
+      const curUse = totalMi / cmpg;
+      if (repl === 'ev') {
+        if (fuel === 'gasoline') gasChg += curUse; else dslChg += curUse;
+        elecChg += totalMi / reff;
+      } else {
+        const save = curUse - totalMi / reff;
+        if (fuel === 'gasoline') gasChg += save; else dslChg += save;
+      }
+    } else {
+      const v = GFV2_VEHICLES[vtype];
+      if (!v) return;
+      anyData = true;
+      const curUse = totalMi / v.mpg;
+      if (repl === 'ev') {
+        if (v.fuel === 'gasoline') gasChg += curUse; else dslChg += curUse;
+        if (v.evMpkWh) elecChg += totalMi / v.evMpkWh;
+      } else {
+        const save = curUse - totalMi / v.hybridMpg;
+        if (v.fuel === 'gasoline') gasChg += save; else dslChg += save;
+      }
+    }
+  });
+
+  if (!anyData) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const bioChg = parseFloat(document.getElementById('gfv2-biodiesel-change')?.value) || 0;
+
+  document.getElementById('gfv2-r-gas').textContent    = fmt(Math.max(0, gasChg));
+  document.getElementById('gfv2-r-diesel').textContent = fmt(Math.max(0, dslChg));
+  document.getElementById('gfv2-r-elec').textContent   = fmt(elecChg);
+
+  // HC Runoff = (gasChg x 6.1 + dslChg x 7.1 + bioChg x 6.39) x 4.210526 x 0.0001
+  const hc = (gasChg * GFV2_HC.gasoline + dslChg * GFV2_HC.diesel + bioChg * GFV2_HC.biodiesel)
+             * GFV2_INF * GFV2_SPL;
+  document.getElementById('gfv2-r-hc').textContent = fmt(Math.max(0, hc));
+
+  // Electricity region lookup
+  const region   = document.getElementById('gfv2-region')?.value || '';
+  const regData  = GFV2_REGIONS[region] ?? null;
+  const co2LbMwh = regData ? regData.co2 : null;
+  const elecCents = regData ? regData.elec : null;
+
+  // GHG = (gasChg x 8.81 + dslChg x 10.24 + bioChg x 9.46) - elecChg x (co2 lb/MWh x 0.453592/1000)
+  const elecCo2 = co2LbMwh !== null ? co2LbMwh * 0.453592 / 1000 : 0;
+  const ghgKg   = gasChg * GFV2_GHG.gasoline + dslChg * GFV2_GHG.diesel +
+                  bioChg * GFV2_GHG.biodiesel - elecChg * elecCo2;
+  const ghgMT   = ghgKg / 1000;
+  const ghgEl   = document.getElementById('gfv2-r-ghg');
+  ghgEl.textContent = fmt(Math.abs(ghgMT));
+  ghgEl.style.color = ghgMT >= 0 ? '' : '#c0392b';
+
+  // Cost = gasChg x gasPpg + dslChg x dslPpg + bioChg x bioPpg - elecChg x (cents/100)
+  const gasPpg = parseFloat(document.getElementById('gfv2-gas-price')?.value)       || 0;
+  const dslPpg = parseFloat(document.getElementById('gfv2-diesel-price')?.value)    || 0;
+  const bioPpg = parseFloat(document.getElementById('gfv2-biodiesel-price')?.value) || 0;
+  const cost   = gasChg * gasPpg + dslChg * dslPpg + bioChg * bioPpg
+                 - elecChg * ((elecCents ?? 0) / 100);
+  const costEl = document.getElementById('gfv2-r-cost');
+  costEl.textContent = (cost < 0 ? '-' : '') + '$' + fmt(Math.abs(cost));
+  costEl.style.color = cost >= 0 ? '' : '#c0392b';
+
+  // Electricity info line
+  const infoEl = document.getElementById('gfv2-elec-info');
+  if (infoEl) {
+    infoEl.textContent = regData
+      ? `Electricity: ${elecCents.toFixed(2)} ¢/kWh · Grid: ${co2LbMwh.toFixed(0)} lb CO₂e/MWh (eGRID 2023)`
+      : '';
+  }
+
+  // Footer note
+  const noteEl = document.getElementById('gfv2-note');
+  if (noteEl) {
+    if (!region) {
+      noteEl.textContent = 'ℹ️ Select a region above to include electricity grid emissions and EV charging costs.';
+    } else if (ghgMT < 0) {
+      noteEl.textContent = `⚠️ Net GHG shown in red — grid emissions in ${region} (${co2LbMwh?.toFixed(0)} lb/MWh) exceed combustion savings in this scenario.`;
+    } else {
+      noteEl.textContent = `Net GHG reduction accounts for electricity grid emissions in ${region} (${co2LbMwh?.toFixed(0) ?? '—'} lb CO₂e/MWh, eGRID 2023 non-baseload).`;
     }
   }
 }
