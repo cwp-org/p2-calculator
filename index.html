@@ -1186,8 +1186,8 @@
       greenhouse gas emissions, and fuel cost savings.
     </p>
 
-    <!-- State selector -->
-    <div class="input-grid" style="grid-template-columns:minmax(260px,420px);margin-bottom:20px">
+    <!-- State selector & fuel prices -->
+    <div class="input-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:20px">
       <div class="input-card">
         <span class="ic-icon">📍</span>
         <div class="ic-label">State (for electricity rates &amp; grid emissions)</div>
@@ -1252,6 +1252,36 @@
           </select>
         </div>
         <div id="fleet-elec-info" class="fleet-elec-info"></div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-label">Gasoline Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="fleet-gas-price" value="2.691" min="0" step="0.001"
+                 oninput="fleetRecalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-label">Diesel Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="fleet-diesel-price" value="3.056" min="0" step="0.001"
+                 oninput="fleetRecalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
+      </div>
+
+      <div class="input-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-label">Biodiesel Price ($/gal)</div>
+        <div class="ic-input-row" style="margin-top:6px">
+          <input type="number" id="fleet-biodiesel-price" value="3.056" min="0" step="0.001"
+                 oninput="fleetRecalc()"
+                 style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:13px">
+        </div>
       </div>
     </div>
 
@@ -4202,9 +4232,20 @@ const FLEET_VEHICLES = {
   'Refuse Truck':       { fuel:'diesel',   mpg:2.8,   hybridMpg:3.78,   evMpkWh:null, evAvail:false },
 };
 
-const FLEET_FUEL_COST   = { gasoline:2.691, diesel:3.056 };
+// Fuel prices are read from user inputs (gasoline, diesel, biodiesel)
+function fleetFuelPrices() {
+  const g = parseFloat(document.getElementById('fleet-gas-price')?.value);
+  const d = parseFloat(document.getElementById('fleet-diesel-price')?.value);
+  const b = parseFloat(document.getElementById('fleet-biodiesel-price')?.value);
+  return {
+    gasoline:  Number.isFinite(g) ? g : 0,
+    diesel:    Number.isFinite(d) ? d : 0,
+    biodiesel: Number.isFinite(b) ? b : 0,
+  };
+}
 const FLEET_HC_DENSITY  = { gasoline:6.1,   diesel:7.1 };
 const FLEET_HC_INFLATION = 4.210526315789474;
+const FLEET_HC_RUNOFF_FACTOR = 0.0001;  // runoff delivery factor
 const FLEET_GHG_FACTOR  = { gasoline:8.81,  diesel:10.24 };
 
 // eGRID 2023 — state non-baseload CO₂e emission rates (lb/MWh)
@@ -4414,8 +4455,8 @@ function fleetRecalc() {
   document.getElementById('fleet-r-diesel').textContent = fmt(Math.max(0, dieselChange));
   document.getElementById('fleet-r-elec').textContent   = fmt(elecChange);
 
-  // Hydrocarbon runoff reduction (lbs/yr)
-  const hc = (gasChange * FLEET_HC_DENSITY.gasoline + dieselChange * FLEET_HC_DENSITY.diesel) * FLEET_HC_INFLATION;
+  // Hydrocarbon runoff reduction (lbs/yr) — apply runoff delivery factor
+  const hc = (gasChange * FLEET_HC_DENSITY.gasoline + dieselChange * FLEET_HC_DENSITY.diesel) * FLEET_HC_INFLATION * FLEET_HC_RUNOFF_FACTOR;
   document.getElementById('fleet-r-hc').textContent = fmt(Math.max(0, hc));
 
   // Grid emissions & electricity price from state
@@ -4431,13 +4472,14 @@ function fleetRecalc() {
   ghgEl.textContent  = fmt(Math.abs(ghgMT));
   ghgEl.style.color  = ghgMT >= 0 ? '' : '#c0392b';
 
-  // Net cost savings ($/yr)
+  // Net cost savings ($/yr) — uses user-entered fuel prices
+  const fuelPrice = fleetFuelPrices();
   const elecCents = FLEET_ELEC_PRICE[st] ?? null;
   let costSavings;
   if (elecCents !== null) {
-    costSavings = gasChange * FLEET_FUEL_COST.gasoline + dieselChange * FLEET_FUEL_COST.diesel - elecChange * (elecCents / 100);
+    costSavings = gasChange * fuelPrice.gasoline + dieselChange * fuelPrice.diesel - elecChange * (elecCents / 100);
   } else {
-    costSavings = gasChange * FLEET_FUEL_COST.gasoline + dieselChange * FLEET_FUEL_COST.diesel;
+    costSavings = gasChange * fuelPrice.gasoline + dieselChange * fuelPrice.diesel;
   }
   const costEl = document.getElementById('fleet-r-cost');
   costEl.textContent = (costSavings < 0 ? '-' : '') + '$' + fmt(Math.abs(costSavings));
